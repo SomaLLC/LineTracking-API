@@ -3,7 +3,7 @@ import os
 from ultralytics import YOLO
 
 # Load the YOLO model
-model = YOLO("yolov9m.pt") 
+model = YOLO("../models/yolov9m.pt") 
 
 # Ask user for video path
 video_path = input("Enter the path to the video file: ")
