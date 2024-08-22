@@ -66,7 +66,7 @@ while cap.isOpened():
     for result in results:
         if result.masks is not None:
             for mask in result.masks.numpy():
-                mask = mask.astype(bool)
+                mask = mask.numpy().astype(bool)
                 frame[mask] = [0, 255, 0]  # Apply a green mask
 
     # Save the masked frame as an image
