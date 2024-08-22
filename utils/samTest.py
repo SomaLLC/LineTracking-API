@@ -66,15 +66,22 @@ while cap.isOpened():
     for result in results:
         if result.masks is not None:
             for mask in result.masks:
-                mask_array = mask.data.cpu().numpy()  # Convert mask tensor to numpy array
-                mask_array = cv2.resize(mask_array[0], (width, height))  # Resize mask to frame size
-                
-                # Apply the mask to each channel (R, G, B)
-                for i in range(3):
-                    frame[:, :, i] = frame[:, :, i] * mask_array
-                
-                # Optional: Apply a color to the masked area
-                frame[mask_array > 0] = [0, 255, 0]  # Apply a green color to the masked areas
+                coords = mask.xy  # Get the mask coordinates (individual points)
+
+                # Create an empty mask
+                mask_array = np.zeros((frame_height, frame_width), dtype=np.uint8)
+
+                # Draw the points on the mask
+                for point in coords:
+                    x, y = int(point[0]), int(point[1])
+                    if 0 <= x < frame_width and 0 <= y < frame_height:
+                        mask_array[y, x] = 255  # Set the point in the mask
+
+                # Convert the mask to a binary image
+                mask_array = cv2.dilate(mask_array, None)  # Optional: Dilate to fill gaps
+
+                # Apply the mask to each channel (R, G, B) of the frame
+                frame[mask_array > 0] = [0, 255, 0]
 
     # Save the masked frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
