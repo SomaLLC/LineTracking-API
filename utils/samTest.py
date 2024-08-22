@@ -2,7 +2,8 @@ import firebase_admin
 from firebase_admin import credentials, storage
 import cv2
 import os
-from ultralytics import YOLO
+import random
+from ultralytics import SAM
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
@@ -10,8 +11,8 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
 
-# Load the YOLO model
-model = YOLO("../models/yolov9m.pt") 
+# Load the SAM model
+model = SAM("sam2_t.pt")
 
 # Ask user for video path
 video_path = input("Enter the path to the video file: ")
@@ -35,8 +36,13 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 # Define the codec and create a VideoWriter object to save the video
 output_video_path = "output_video.avi"
-fourcc = cv2.VideoWriter_fourcc(*'MJPG')  # Using H.264 codec for better compatibility
+fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+
+# Randomly skip frames to start processing at a random point
+total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+start_frame = random.randint(0, total_frames // 2)
+cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
 # Process the video frame by frame
 while cap.isOpened():
@@ -44,23 +50,24 @@ while cap.isOpened():
     if not ret:
         break
     
-    # Run YOLO model on the frame
-    results = model(frame)
-    
-    # Draw all detections
-    for result in results:
-        for obj,label,bbox,confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
-            print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
+    # You can define a bounding box or points for segmentation as needed
+    height, width, _ = frame.shape
+    bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
 
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
-            label_text = f"{label} {confidence:.2f} ({int(bbox[0])}, {int(bbox[1])}, {int(bbox[2])}, {int(bbox[3])})"
-            cv2.putText(frame, label_text, (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
- 
-    # Save the frame as an image
+    # Run SAM model on the frame with bounding box prompt
+    results = model(frame, bboxes=[bbox])
+
+    # Apply the mask to the frame (assuming the model returns a mask)
+    if results.masks is not None:
+        for mask in results.masks:
+            mask = mask.cpu().numpy().astype(bool)
+            frame[mask] = [0, 255, 0]  # Apply a green mask
+
+    # Save the masked frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
     cv2.imwrite(output_path, frame)
     
-    # Write the frame to the video file
+    # Write the masked frame to the video file
     out.write(frame)
     
     frame_count += 1
@@ -82,4 +89,3 @@ blob.make_public()
 # Get the public URL
 firebase_url = blob.public_url
 print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url}")
-
