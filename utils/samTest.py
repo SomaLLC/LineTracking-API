@@ -4,6 +4,7 @@ import cv2
 import os
 import random
 from ultralytics import SAM
+import numpy as np
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
