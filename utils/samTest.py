@@ -75,16 +75,13 @@ while cap.isOpened():
                 mask_array = np.zeros((frame_height, frame_width), dtype=np.uint8)
 
                 # Draw the points on the mask
-                for point in coords:
+                for point in coords[0]:  # Assuming coords[0] is a numpy array of points
                     x, y = int(point[0]), int(point[1])
                     if 0 <= x < frame_width and 0 <= y < frame_height:
                         mask_array[y, x] = 255  # Set the point in the mask
 
-                # Convert the mask to a binary image
-                mask_array = cv2.dilate(mask_array, None)  # Optional: Dilate to fill gaps
-
-                # Apply the mask to each channel (R, G, B) of the frame
-                frame[mask_array > 0] = [0, 255, 0]
+                # Apply the mask to the frame
+                frame[mask_array > 0] = [0, 255, 0]  # Set the masked areas to green
 
     # Save the masked frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
