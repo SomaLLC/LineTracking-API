@@ -15,7 +15,10 @@ firebase_admin.initialize_app(cred, {
 model = SAM("../models/sam2_t.pt")
 
 # Ask user for video path
-video_path = input("Enter the path to the video file: ")
+#video_path = input("Enter the path to the video file: ")
+
+#Hardcode video path for easy debugging
+video_path = "../content/cloth-sample.mp4"
 
 # Create an output directory to save the images
 output_dir = "output_frames"
@@ -62,8 +65,8 @@ while cap.isOpened():
     # Apply the mask to the frame (assuming the model returns a mask)
     for result in results:
         if result.masks is not None:
-            for mask in result.masks:
-                mask = mask.cpu().numpy().astype(bool)
+            for mask in result.masks.numpy():
+                mask = mask.astype(bool)
                 frame[mask] = [0, 255, 0]  # Apply a green mask
 
     # Save the masked frame as an image
