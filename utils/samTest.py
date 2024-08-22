@@ -66,8 +66,10 @@ while cap.isOpened():
     for result in results:
         if result.masks is not None:
             for mask in result.masks.numpy():
-                mask = mask.numpy().astype(bool)
-                frame[mask] = [0, 255, 0]  # Apply a green mask
+                mask_array = mask.numpy()  # Get the numpy array from the mask
+                for i in range(3):  # Apply the mask to each channel (R, G, B)
+                    frame[:, :, i] = frame[:, :, i] * mask_array  # Zero out the areas outside the mask
+                frame[mask_array > 0] = [0, 255, 0]  # Apply a green mask to the segmented area
 
     # Save the masked frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
