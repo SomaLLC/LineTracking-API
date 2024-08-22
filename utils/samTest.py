@@ -12,7 +12,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 # Load the SAM model
-model = SAM("sam2_t.pt")
+model = SAM("../models/sam2_t.pt")
 
 # Ask user for video path
 video_path = input("Enter the path to the video file: ")
@@ -35,7 +35,7 @@ frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 # Define the codec and create a VideoWriter object to save the video
-output_video_path = "output_video.avi"
+output_video_path = "output_video_sam.avi"
 fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
