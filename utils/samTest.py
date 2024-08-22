@@ -57,6 +57,8 @@ while cap.isOpened():
     # Run SAM model on the frame with bounding box prompt
     results = model(frame, bboxes=[bbox])
 
+    print(f"Results: {results}")
+
     # Apply the mask to the frame (assuming the model returns a mask)
     if results.masks is not None:
         for mask in results.masks:
