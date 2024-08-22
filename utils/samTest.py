@@ -60,10 +60,11 @@ while cap.isOpened():
     print(f"Results: {results}")
 
     # Apply the mask to the frame (assuming the model returns a mask)
-    if results.masks is not None:
-        for mask in results.masks:
-            mask = mask.cpu().numpy().astype(bool)
-            frame[mask] = [0, 255, 0]  # Apply a green mask
+    for result in results:
+        if result.masks is not None:
+            for mask in result.masks:
+                mask = mask.cpu().numpy().astype(bool)
+                frame[mask] = [0, 255, 0]  # Apply a green mask
 
     # Save the masked frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
