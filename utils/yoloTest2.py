@@ -55,6 +55,8 @@ while cap.isOpened():
                 label = result.names[class_id]
                 bbox = obj.xyxy
                 confidence = prob[class_id]
+
+                print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
                 
                 # Draw bounding box and label with coordinates
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
