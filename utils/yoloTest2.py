@@ -49,21 +49,13 @@ while cap.isOpened():
     
     # Draw all detections
     for result in results:
-        print(f"\n\n\n Result: {result}")
-        if result.boxes is not None and result.probs is not None:
-            for obj, prob in zip(result.boxes.data, result.probs):
-                class_id = int(prob.argmax())  # Get the index of the highest probability
-                label = result.names[class_id]
-                bbox = obj.xyxy
-                confidence = prob[class_id]
+        for obj,label,bbox,confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
+            print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
 
-                print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
-                
-                # Draw bounding box and label with coordinates
-                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
+            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
                 label_text = f"{label} {confidence:.2f} ({int(bbox[0])}, {int(bbox[1])}, {int(bbox[2])}, {int(bbox[3])})"
                 cv2.putText(frame, label_text, (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-    
+ 
     # Save the frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
     cv2.imwrite(output_path, frame)
