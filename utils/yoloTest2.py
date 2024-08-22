@@ -49,6 +49,7 @@ while cap.isOpened():
     
     # Draw all detections
     for result in results:
+        print(f"\n\n\n Result: {result}")
         if result.boxes is not None and result.probs is not None:
             for obj, prob in zip(result.boxes.data, result.probs):
                 class_id = int(prob.argmax())  # Get the index of the highest probability
