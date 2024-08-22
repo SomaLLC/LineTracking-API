@@ -69,6 +69,8 @@ while cap.isOpened():
             for mask in result.masks:
                 coords = mask.xy  # Get the mask coordinates (individual points)
 
+                print(f"\n\n Coords: {coords}")
+
                 # Create an empty mask
                 mask_array = np.zeros((frame_height, frame_width), dtype=np.uint8)
 
