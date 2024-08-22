@@ -35,7 +35,7 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 # Define the codec and create a VideoWriter object to save the video
 output_video_path = "output_video.mp4"
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+fourcc = cv2.VideoWriter_fourcc(*'H264')  # Using H.264 codec for better compatibility
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
 # Process the video frame by frame
@@ -81,6 +81,10 @@ bucket = storage.bucket()
 blob = bucket.blob(output_video_path)
 blob.upload_from_filename(output_video_path)
 
+# Make the file public
+blob.make_public()
+
 # Get the public URL
 firebase_url = blob.public_url
-print(f"Video uploaded to Firebase Storage. URL: {firebase_url}")
+print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url}")
+
