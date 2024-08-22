@@ -65,7 +65,7 @@ while cap.isOpened():
     # Apply the mask to the frame (assuming the model returns a mask)
     for result in results:
         if result.masks is not None:
-            for mask in results.masks:
+            for mask in result.masks:
                 mask_array = mask.data.cpu().numpy()  # Convert mask tensor to numpy array
                 mask_array = cv2.resize(mask_array[0], (width, height))  # Resize mask to frame size
                 
