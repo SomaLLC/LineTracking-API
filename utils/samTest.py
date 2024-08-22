@@ -65,11 +65,16 @@ while cap.isOpened():
     # Apply the mask to the frame (assuming the model returns a mask)
     for result in results:
         if result.masks is not None:
-            for mask in result.masks.numpy():
-                mask_array = mask.numpy()  # Get the numpy array from the mask
-                for i in range(3):  # Apply the mask to each channel (R, G, B)
-                    frame[:, :, i] = frame[:, :, i] * mask_array  # Zero out the areas outside the mask
-                frame[mask_array > 0] = [0, 255, 0]  # Apply a green mask to the segmented area
+            for mask in results.masks:
+                mask_array = mask.data.cpu().numpy()  # Convert mask tensor to numpy array
+                mask_array = cv2.resize(mask_array[0], (width, height))  # Resize mask to frame size
+                
+                # Apply the mask to each channel (R, G, B)
+                for i in range(3):
+                    frame[:, :, i] = frame[:, :, i] * mask_array
+                
+                # Optional: Apply a color to the masked area
+                frame[mask_array > 0] = [0, 255, 0]  # Apply a green color to the masked areas
 
     # Save the masked frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
