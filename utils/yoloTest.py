@@ -33,13 +33,14 @@ while cap.isOpened():
     
     # Draw all detections
     for result in results:
-        for obj in result.boxes.data:
-            label = result.names[int(obj.cls)]
+        for obj, prob in zip(result.boxes.data, result.probs):
+            class_id = int(prob.argmax())  # Get the index of the highest probability
+            label = result.names[class_id]
             bbox = obj.xyxy
-            conf = obj.conf
+            confidence = prob[class_id]
             # Draw bounding box and label
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
-            cv2.putText(frame, f"{label} {conf:.2f}", (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+            cv2.putText(frame, f"{label} {confidence:.2f}", (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
     
     # Save the frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
