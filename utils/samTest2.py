@@ -57,6 +57,8 @@ start_frame = random.randint(0, total_frames // 2)
 cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
 # Define a transformation for converting OpenCV frames to PyTorch tensors
+resize_width = 640
+resize_height = 640
 transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.ToTensor(),
