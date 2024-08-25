@@ -82,11 +82,7 @@ while cap.isOpened():
     bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
 
     # Run SAM model on the frame with bounding box prompt
-    try:
-        results = model(frame_tensor, bboxes=[bbox])
-    except Exception as e:
-        print(f"Error during model inference: {e}")
-        continue
+    results = model(frame_tensor, bboxes=[bbox])
 
     #results = results.cpu()
 
