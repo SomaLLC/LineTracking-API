@@ -12,8 +12,10 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # Load the SAM model
-model = SAM("../models/sam2_t.pt")
+model = SAM("../models/sam2_t.pt").to(device)
 
 # Ask user for video path
 #video_path = input("Enter the path to the video file: ")
@@ -57,6 +59,9 @@ while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
+
+    # Move the frame to the GPU
+    frame = torch.tensor(frame).to(device)
     
     # You can define a bounding box or points for segmentation as needed
     height, width, _ = frame.shape
@@ -64,6 +69,8 @@ while cap.isOpened():
 
     # Run SAM model on the frame with bounding box prompt
     results = model(frame, bboxes=[bbox])
+
+    results = results.cpu()
 
     # Apply the mask to the frame (assuming the model returns a mask)
     for result in results:
@@ -88,7 +95,7 @@ while cap.isOpened():
     cv2.imwrite(output_path, frame)
     
     # Write the masked frame to the video file
-    out.write(frame)
+    out.write(frame.cpu().numpy())
     
     frame_count += 1
 
