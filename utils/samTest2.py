@@ -56,23 +56,12 @@ total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 start_frame = random.randint(0, total_frames // 2)
 cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
-# Define transformation for the input frames
-transform = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize((640, 640)),  # Resize to model input size if needed
-    transforms.ToTensor(),          # Convert image to tensor
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Standard normalization
-])
-
 # Process the video frame by frame
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
 
-    # Apply transformation to the frame
-    transformed_frame = transform(frame).unsqueeze(0).to("cuda" if torch.cuda.is_available() else "cpu")
-    
     # You can define a bounding box or points for segmentation as needed
     height, width, _ = frame.shape
     bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
