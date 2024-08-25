@@ -10,8 +10,9 @@ import torchvision.transforms as transforms
 from cloth_track.settings import BASE_DIR
 
 parent_dir = os.path.dirname(BASE_DIR)
+grand_parent_dir = os.path.dirname(parent_dir)
 
-credentials_path = os.path.join(parent_dir, 'credentials.json')
+credentials_path = os.path.join(grand_parent_dir, 'credentials.json')
 
 sam_2_path = os.path.join(parent_dir, 'models', 'sam2_t.pt')
 
