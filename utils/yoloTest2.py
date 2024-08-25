@@ -3,12 +3,15 @@ from firebase_admin import credentials, storage
 import cv2
 import os
 from ultralytics import YOLO
+import torch
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
+
+torch.cuda.set_device(0)
 
 # Load the YOLO model
 model = YOLO("../models/yolov9m.pt") 
@@ -27,6 +30,8 @@ cap = cv2.VideoCapture(video_path)
 if not cap.isOpened():
     print("Error: Could not open video.")
     exit()
+
+total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
 frame_count = 0
 frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -64,6 +69,9 @@ while cap.isOpened():
     out.write(frame)
     
     frame_count += 1
+
+    percentage_processed = (frame_count / total_frames) * 100
+    print(f"Processed {percentage_processed:.2f}% of frames.")
 
 # Release the video capture and writer
 cap.release()
