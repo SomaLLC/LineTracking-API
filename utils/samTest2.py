@@ -67,7 +67,7 @@ while cap.isOpened():
     bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
 
     # Run SAM model on the frame with bounding box prompt
-    results = model(transformed_frame, bboxes=[bbox])
+    results = model(frame, bboxes=[bbox])
 
     #results = results.cpu()
 
