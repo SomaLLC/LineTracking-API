@@ -6,6 +6,7 @@ import random
 from ultralytics import SAM
 import numpy as np
 import torch
+import torchvision.transforms as transforms
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
@@ -55,23 +56,33 @@ total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 start_frame = random.randint(0, total_frames // 2)
 cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
+# Resize dimensions for SAM model compatibility (divisible by 32)
+resize_width = (frame_width // 32) * 32
+resize_height = (frame_height // 32) * 32
+transform = transforms.Compose([
+    transforms.ToTensor(),  # Convert to tensor
+    transforms.Resize((resize_height, resize_width)),  # Resize to the required size
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize if needed
+])
+
 # Process the video frame by frame
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
 
-    # Move the frame to the GPU
-    frame = torch.tensor(frame).to(device)
+    # Resize frame and convert to tensor
+    resized_frame = cv2.resize(frame, (resize_width, resize_height))
+    frame_tensor = transform(resized_frame).unsqueeze(0).to(device)  # Add batch dimension
     
     # You can define a bounding box or points for segmentation as needed
     height, width, _ = frame.shape
     bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
 
     # Run SAM model on the frame with bounding box prompt
-    results = model(frame, bboxes=[bbox])
+    results = model(frame_tensor, bboxes=[bbox])
 
-    results = results.cpu()
+    #results = results.cpu()
 
     # Apply the mask to the frame (assuming the model returns a mask)
     for result in results:
