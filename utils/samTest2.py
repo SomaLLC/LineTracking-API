@@ -61,7 +61,7 @@ transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.ToTensor(),
     transforms.Resize((640, 640)),  # Resize to model input size
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize as needed
+    transforms.Normalize(mean=[0.0, 0.0, 0.0], std=[1.0, 1.0, 1.0])  # Normalize as needed
 ])
 
 # Process the video frame by frame
@@ -71,6 +71,7 @@ while cap.isOpened():
         break
 
     # Convert the frame to a tensor and move it to the GPU
+    resized_frame = cv2.resize(frame, (resize_width, resize_height))
     frame_tensor = transform(frame).unsqueeze(0).to(device)
 
     # You can define a bounding box or points for segmentation as needed
