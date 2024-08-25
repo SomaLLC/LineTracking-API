@@ -56,13 +56,12 @@ total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 start_frame = random.randint(0, total_frames // 2)
 cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
-# Resize dimensions for SAM model compatibility (divisible by 32, or model-specific)
-resize_width = 640
-resize_height = 640
+# Define transformation for the input frames
 transform = transforms.Compose([
-    transforms.ToTensor(),  # Convert to tensor
-    transforms.Resize((resize_height, resize_width)),  # Resize to the required size
-    transforms.Normalize(mean=[0.0, 0.0, 0.0], std=[1.0, 1.0, 1.0])  # Normalize to [0.0, 1.0]
+    transforms.ToPILImage(),
+    transforms.Resize((640, 640)),  # Resize to model input size if needed
+    transforms.ToTensor(),          # Convert image to tensor
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Standard normalization
 ])
 
 # Process the video frame by frame
@@ -71,16 +70,15 @@ while cap.isOpened():
     if not ret:
         break
 
-    # Resize frame and convert to tensor
-    resized_frame = cv2.resize(frame, (resize_width, resize_height))
-    frame_tensor = transform(resized_frame).unsqueeze(0).to(device)  # Add batch dimension
+    # Apply transformation to the frame
+    transformed_frame = transform(frame).unsqueeze(0).to("cuda" if torch.cuda.is_available() else "cpu")
     
     # You can define a bounding box or points for segmentation as needed
     height, width, _ = frame.shape
     bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
 
     # Run SAM model on the frame with bounding box prompt
-    results = model(frame_tensor, bboxes=[bbox])
+    results = model(transformed_frame, bboxes=[bbox])
 
     #results = results.cpu()
 
@@ -100,17 +98,14 @@ while cap.isOpened():
                         mask_array[y, x] = 255  # Set the point in the mask
 
                 # Apply the mask to the frame
-                resized_frame[mask_array > 0] = [0, 255, 0]  # Set the masked areas to green
-
-    # Resize back to original size for display if necessary
-    original_size_frame = cv2.resize(resized_frame, (frame_width, frame_height))
+                frame[mask_array > 0] = [0, 255, 0]  # Set the masked areas to green
 
     # Save the masked frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
     cv2.imwrite(output_path, frame)
     
     # Write the masked frame to the video file
-    out.write(original_size_frame)
+    out.write(frame)
     
     frame_count += 1
 
