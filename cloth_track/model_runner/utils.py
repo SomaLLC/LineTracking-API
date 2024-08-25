@@ -7,9 +7,18 @@ from ultralytics import SAM
 import numpy as np
 import torch
 import torchvision.transforms as transforms
+from cloth_track.settings import BASE_DIR
+
+parent_dir = os.path.dirname(BASE_DIR)
+
+credentials_path = os.path.join(parent_dir, 'credentials.json')
+
+sam_2_path = os.path.join(parent_dir, 'models', 'sam2_t.pt')
+
+yolo_path = os.path.join(parent_dir, 'models', 'yolov9m.pt')
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate("../../../credentials.json")
+cred = credentials.Certificate(credentials_path)
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
@@ -18,7 +27,7 @@ torch.cuda.set_device(0)
 
 def sam_2_runner(video_url):
     # Load the SAM model
-    model = SAM("../../models/sam2_t.pt")
+    model = SAM(sam_2_path)
 
     # Create an output directory to save the images
     output_dir = "output_frames"
@@ -115,7 +124,7 @@ def sam_2_runner(video_url):
 
 def yolo_runner(video_url):
     # Load the YOLO model
-    model = YOLO("../models/yolov9m.pt") 
+    model = YOLO(yolo_path) 
 
     # Create an output directory to save the images
     output_dir = "output_frames"
