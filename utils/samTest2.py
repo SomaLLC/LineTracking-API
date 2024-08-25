@@ -75,7 +75,7 @@ while cap.isOpened():
     # Convert the frame to a tensor and move it to the GPU
     resized_frame = cv2.resize(frame, (resize_width, resize_height))
     #frame_tensor = transform(frame).unsqueeze(0).to(device)
-    frame_tensor = transform(frame).to(device)
+    frame_tensor = transform(frame).reshape((1,3,640,640)).to(device)
 
     # You can define a bounding box or points for segmentation as needed
     height, width, _ = frame.shape
