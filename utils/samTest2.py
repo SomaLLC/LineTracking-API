@@ -23,8 +23,8 @@ model = SAM("../models/sam2_t.pt")
 #video_path = input("Enter the path to the video file: ")
 
 #Hardcode video path for easy debugging
-video_path = "../content/cloth-sample.mp4"
-#video_path = "https://drive.google.com/uc?export=download&id=1LY5zikXCmg8OPRAhCuBGagcfh4f5Ns_Z"
+#video_path = "../content/cloth-sample.mp4"
+video_path = "https://drive.google.com/uc?export=download&id=1LY5zikXCmg8OPRAhCuBGagcfh4f5Ns_Z"
 
 
 # Create an output directory to save the images

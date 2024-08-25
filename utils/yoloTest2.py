@@ -17,7 +17,9 @@ torch.cuda.set_device(0)
 model = YOLO("../models/yolov9m.pt") 
 
 # Ask user for video path
-video_path = input("Enter the path to the video file: ")
+#video_path = input("Enter the path to the video file: ")
+
+video_path = "https://drive.google.com/uc?export=download&id=1LY5zikXCmg8OPRAhCuBGagcfh4f5Ns_Z"
 
 # Create an output directory to save the images
 output_dir = "output_frames"
