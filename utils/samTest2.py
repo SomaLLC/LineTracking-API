@@ -60,7 +60,7 @@ cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.ToTensor(),
-    transforms.Resize((frame_height, frame_width)),  # Resize to model input size
+    transforms.Resize((640, 640)),  # Resize to model input size
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize as needed
 ])
 
