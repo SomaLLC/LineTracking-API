@@ -26,13 +26,13 @@ class RunYOLOView(View):
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
 
-        # Run sam_2_runner asynchronously
+        # Run yolo_runner asynchronously
         asyncio.create_task(self.run_yolo_async(url))
         
         return JsonResponse({'message': 'YOLO run initiated'})
 
     async def run_yolo_async(self, url):
-        # Run the sam_2_runner function asynchronously
+        # Run the yolo_runner function asynchronously
         await asyncio.to_thread(yolo_runner, url)
 
 
