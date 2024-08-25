@@ -14,10 +14,10 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+dtorch.cuda.set_device(0)
 
 # Load the SAM model
-model = SAM("../models/sam2_t.pt", device="gpu")
+model = SAM("../models/sam2_t.pt")
 
 # Ask user for video path
 #video_path = input("Enter the path to the video file: ")
