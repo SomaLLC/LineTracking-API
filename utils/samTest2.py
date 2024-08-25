@@ -17,14 +17,14 @@ firebase_admin.initialize_app(cred, {
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load the SAM model
-model = SAM("../models/sam2_t.pt").to(device)
+model = SAM("../models/sam2_t.pt", device="gpu")
 
 # Ask user for video path
 #video_path = input("Enter the path to the video file: ")
 
 #Hardcode video path for easy debugging
-#video_path = "../content/cloth-sample.mp4"
-video_path = "https://drive.google.com/uc?export=download&id=1LY5zikXCmg8OPRAhCuBGagcfh4f5Ns_Z"
+video_path = "../content/cloth-sample.mp4"
+#video_path = "https://drive.google.com/uc?export=download&id=1LY5zikXCmg8OPRAhCuBGagcfh4f5Ns_Z"
 
 
 # Create an output directory to save the images
@@ -57,14 +57,14 @@ start_frame = random.randint(0, total_frames // 2)
 cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
 # Define a transformation for converting OpenCV frames to PyTorch tensors
-resize_width = 640
+"""resize_width = 640
 resize_height = 640
 transform = transforms.Compose([
     transforms.ToPILImage(),
     transforms.ToTensor(),
     transforms.Resize((640, 640)),  # Resize to model input size
     transforms.Normalize(mean=[0.0, 0.0, 0.0], std=[1.0, 1.0, 1.0])  # Normalize as needed
-])
+])"""
 
 # Process the video frame by frame
 while cap.isOpened():
@@ -72,17 +72,13 @@ while cap.isOpened():
     if not ret:
         break
 
-    # Convert the frame to a tensor and move it to the GPU
-    resized_frame = cv2.resize(frame, (resize_width, resize_height))
-    #frame_tensor = transform(frame).unsqueeze(0).to(device)
-    frame_tensor = transform(frame).reshape((1,3,640,640)).to(device)
-
+    
     # You can define a bounding box or points for segmentation as needed
     height, width, _ = frame.shape
     bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
 
     # Run SAM model on the frame with bounding box prompt
-    results = model(frame_tensor, bboxes=[bbox])
+    results = model(frame, bboxes=[bbox])
 
     #results = results.cpu()
 
