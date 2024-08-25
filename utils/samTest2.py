@@ -56,18 +56,30 @@ total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 start_frame = random.randint(0, total_frames // 2)
 cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
+# Define a transformation for converting OpenCV frames to PyTorch tensors
+transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.ToTensor(),
+    transforms.Resize((frame_height, frame_width)),  # Resize to model input size
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize as needed
+])
+
 # Process the video frame by frame
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
 
+    # Convert the frame to a tensor and move it to the GPU
+    frame_tensor = transform(frame).unsqueeze(0).to(device)
+
     # You can define a bounding box or points for segmentation as needed
     height, width, _ = frame.shape
     bbox = [width // 4, height // 4, 3 * width // 4, 3 * height // 4]  # Example bounding box
 
     # Run SAM model on the frame with bounding box prompt
-    results = model(frame, bboxes=[bbox])
+     with torch.no_grad():  # Disable gradient calculation for inference
+        results = model(frame_tensor, bboxes=[bbox])
 
     #results = results.cpu()
 
