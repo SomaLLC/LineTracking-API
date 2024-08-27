@@ -12,7 +12,7 @@ class RunSam2View(View):
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
         
-        process_status, created = ProcessStatus.objects.get_or_create(input_url=url)
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="SAM-2")
 
         if created:
             # Run sam_2_runner asynchronously
@@ -33,7 +33,7 @@ class RunYOLOView(View):
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
         
-        process_status, created = ProcessStatus.objects.get_or_create(input_url=url)
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="YOLO")
 
         if created:
             # Run yolo_runner asynchronously

@@ -31,7 +31,7 @@ firebase_admin.initialize_app(cred, {
 torch.cuda.set_device(0)
 
 def sam_2_runner(video_url):
-    update_process_status(input_url=video_url,percentage_completion=0,message="Initiating...")
+    update_process_status(input_url=video_url,model_name="SAM-2",percentage_completion=0,message="Initiating...")
 
     # Load the SAM model
     model = SAM(sam_2_path)
@@ -46,7 +46,7 @@ def sam_2_runner(video_url):
     # Check if the video file was opened successfully
     if not cap.isOpened():
         #print("Error: Could not open video.")
-        update_process_status(input_url=video_url,message="Could not process link. Please make sure the link is a direct download link.")
+        update_process_status(input_url=video_url,model_name="SAM-2",message="Could not process link. Please make sure the link is a direct download link.")
         return
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -113,7 +113,7 @@ def sam_2_runner(video_url):
 
         percentage_processed = (frame_count / total_frames) * 100
 
-        update_process_status(input_url=video_url,percentage_completion=percentage_processed,message="In Progress")
+        update_process_status(input_url=video_url,model_name="SAM-2",percentage_completion=percentage_processed,message="In Progress")
         #print(f"Processed {percentage_processed:.2f}% of frames.")
 
     # Release the video capture and writer
@@ -133,7 +133,7 @@ def sam_2_runner(video_url):
     # Get the public URL
     firebase_url = blob.public_url
 
-    update_process_status(input_url=video_url,percentage_completion=percentage_processed,output_url=firebase_url,message="Completed")
+    update_process_status(input_url=video_url,model_name="SAM-2",percentage_completion=percentage_processed,output_url=firebase_url,message="Completed")
     #print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url}")
 
     try:
@@ -143,7 +143,7 @@ def sam_2_runner(video_url):
         print(f"Error deleting file {output_video_path}: {e}")
 
 def yolo_runner(video_url):
-    update_process_status(input_url=video_url,percentage_completion=0,message="Initiating...")
+    update_process_status(input_url=video_url,model_name="YOLO",percentage_completion=0,message="Initiating...")
 
     # Load the YOLO model
     model = YOLO(yolo_path) 
@@ -158,7 +158,7 @@ def yolo_runner(video_url):
     # Check if the video file was opened successfully
     if not cap.isOpened():
         #print("Error: Could not open video.")
-        update_process_status(input_url=video_url,message="Could not process link. Please make sure the link is a direct download link.")
+        update_process_status(input_url=video_url,model_name="YOLO",message="Could not process link. Please make sure the link is a direct download link.")
         return
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -204,7 +204,7 @@ def yolo_runner(video_url):
 
         percentage_processed = (frame_count / total_frames) * 100
 
-        update_process_status(input_url=video_url,percentage_completion=percentage_processed,message="In Progress")
+        update_process_status(input_url=video_url,model_name="YOLO",percentage_completion=percentage_processed,message="In Progress")
         #print(f"Processed {percentage_processed:.2f}% of frames.")
 
     # Release the video capture and writer
@@ -224,7 +224,7 @@ def yolo_runner(video_url):
     # Get the public URL
     firebase_url = blob.public_url
 
-    update_process_status(input_url=video_url,percentage_completion=percentage_processed,output_url=firebase_url,message="Completed")
+    update_process_status(input_url=video_url,model_name="YOLO",percentage_completion=percentage_processed,output_url=firebase_url,message="Completed")
     #print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url}")
 
     try:
@@ -233,9 +233,9 @@ def yolo_runner(video_url):
     except OSError as e:
         print(f"Error deleting file {output_video_path}: {e}")
 
-def update_process_status(input_url, percentage_completion=None, output_url=None, message=None):
+def update_process_status(input_url, model_name, percentage_completion=None, output_url=None, message=None):
     # Example: Update the status for a particular input URL
-    process_status, created = ProcessStatus.objects.get_or_create(input_url=input_url)
+    process_status, created = ProcessStatus.objects.get_or_create(input_url=input_url,model_name=model_name)
     
     # Update the status
     if percentage_completion:
