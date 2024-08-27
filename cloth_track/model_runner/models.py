@@ -10,7 +10,7 @@ class ProcessStatus(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"ProcessStatus for {self.input_url} : {self.percentage_completion}% : {self.message}"
+        return f"ProcessStatus for {self.input_url} : {self.percentage_completion}% : {self.message} : {self.output_url}"
 
     class Meta:
         verbose_name = "Process Status"
