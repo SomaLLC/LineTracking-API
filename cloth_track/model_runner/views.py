@@ -9,11 +9,16 @@ class RunSam2View(View):
         url = request.GET.get('url')
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
-
-        # Run sam_2_runner asynchronously
-        asyncio.create_task(self.run_sam_async(url))
         
-        return JsonResponse({'message': 'SAM 2 run initiated'})
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url)
+
+        if created:
+            # Run sam_2_runner asynchronously
+            asyncio.create_task(self.run_sam_async(url))
+            
+            return JsonResponse({'message': 'SAM 2 run initiated'})
+        else:
+            return JsonResponse({'message': process_status})
 
     async def run_sam_async(self, url):
         # Run the sam_2_runner function asynchronously
@@ -25,11 +30,16 @@ class RunYOLOView(View):
         url = request.GET.get('url')
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
-
-        # Run yolo_runner asynchronously
-        asyncio.create_task(self.run_yolo_async(url))
         
-        return JsonResponse({'message': 'YOLO run initiated'})
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url)
+
+        if created:
+            # Run yolo_runner asynchronously
+            asyncio.create_task(self.run_yolo_async(url))
+            
+            return JsonResponse({'message': 'YOLO run initiated'})
+        else:
+            return JsonResponse({'message': process_status})
 
     async def run_yolo_async(self, url):
         # Run the yolo_runner function asynchronously

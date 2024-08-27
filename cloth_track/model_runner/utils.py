@@ -2,11 +2,15 @@ import firebase_admin
 from firebase_admin import credentials, storage
 import cv2
 import os
+from django.http import JsonResponse
 import random
 from ultralytics import SAM
 import numpy as np
 import torch
 import torchvision.transforms as transforms
+import hashlib
+
+from .models import ProcessStatus
 from cloth_track.settings import BASE_DIR
 
 parent_dir = os.path.dirname(BASE_DIR)
@@ -27,6 +31,8 @@ firebase_admin.initialize_app(cred, {
 torch.cuda.set_device(0)
 
 def sam_2_runner(video_url):
+    update_process_status(input_url=video_url,percentage_completion=0,message="Initiating...")
+
     # Load the SAM model
     model = SAM(sam_2_path)
 
@@ -39,7 +45,8 @@ def sam_2_runner(video_url):
 
     # Check if the video file was opened successfully
     if not cap.isOpened():
-        print("Error: Could not open video.")
+        #print("Error: Could not open video.")
+        update_process_status(input_url=video_url,message="Could not process link. Please make sure the link is a direct download link.")
         return
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -49,8 +56,10 @@ def sam_2_runner(video_url):
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = int(cap.get(cv2.CAP_PROP_FPS))
 
+    url_hash = hashlib.sha256(video_url.encode()).hexdigest()
+
     # Define the codec and create a VideoWriter object to save the video
-    output_video_path = "output_video_sam_x.avi"
+    output_video_path = f"output_video_sam_{url_hash}.avi"
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
@@ -103,6 +112,8 @@ def sam_2_runner(video_url):
         frame_count += 1
 
         percentage_processed = (frame_count / total_frames) * 100
+
+        update_process_status(input_url=video_url,percentage_completion=percentage_processed,message="In Progress")
         #print(f"Processed {percentage_processed:.2f}% of frames.")
 
     # Release the video capture and writer
@@ -121,9 +132,19 @@ def sam_2_runner(video_url):
 
     # Get the public URL
     firebase_url = blob.public_url
+
+    update_process_status(input_url=video_url,percentage_completion=percentage_processed,output_url=firebase_url,message="Completed")
     #print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url}")
 
+    try:
+        os.remove(output_video_path)
+        print(f"Deleted local video file: {output_video_path}")
+    except OSError as e:
+        print(f"Error deleting file {output_video_path}: {e}")
+
 def yolo_runner(video_url):
+    update_process_status(input_url=video_url,percentage_completion=0,message="Initiating...")
+
     # Load the YOLO model
     model = YOLO(yolo_path) 
 
@@ -136,7 +157,8 @@ def yolo_runner(video_url):
 
     # Check if the video file was opened successfully
     if not cap.isOpened():
-        print("Error: Could not open video.")
+        #print("Error: Could not open video.")
+        update_process_status(input_url=video_url,message="Could not process link. Please make sure the link is a direct download link.")
         return
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -146,8 +168,10 @@ def yolo_runner(video_url):
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = int(cap.get(cv2.CAP_PROP_FPS))
 
+    url_hash = hashlib.sha256(video_url.encode()).hexdigest()
+
     # Define the codec and create a VideoWriter object to save the video
-    output_video_path = "output_video_x.avi"
+    output_video_path = f"output_video_yolo_{url_hash}.avi"
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')  # Using H.264 codec for better compatibility
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
@@ -179,6 +203,8 @@ def yolo_runner(video_url):
         frame_count += 1
 
         percentage_processed = (frame_count / total_frames) * 100
+
+        update_process_status(input_url=video_url,percentage_completion=percentage_processed,message="In Progress")
         #print(f"Processed {percentage_processed:.2f}% of frames.")
 
     # Release the video capture and writer
@@ -197,5 +223,35 @@ def yolo_runner(video_url):
 
     # Get the public URL
     firebase_url = blob.public_url
+
+    update_process_status(input_url=video_url,percentage_completion=percentage_processed,output_url=firebase_url,message="Completed")
     #print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url}")
 
+    try:
+        os.remove(output_video_path)
+        print(f"Deleted local video file: {output_video_path}")
+    except OSError as e:
+        print(f"Error deleting file {output_video_path}: {e}")
+
+def update_process_status(input_url, percentage_completion=None, output_url=None, message=None):
+    # Example: Update the status for a particular input URL
+    process_status, created = ProcessStatus.objects.get_or_create(input_url=input_url)
+    
+    # Update the status
+    if percentage_completion:
+        process_status.percentage_completion = percentage_completion
+    
+    if output_url:
+        process_status.output_url = output_url
+
+    if message:
+        process_status.message = message
+
+    process_status.save()
+
+    return JsonResponse({
+        'input_url': process_status.input_url,
+        'percentage_completion': process_status.percentage_completion,
+        'output_url': process_status.output_url,
+        'message': process_status.message,
+    })
