@@ -4,7 +4,7 @@ import cv2
 import os
 from django.http import JsonResponse
 import random
-from ultralytics import SAM
+from ultralytics import SAM, YOLO
 import numpy as np
 import torch
 import torchvision.transforms as transforms
