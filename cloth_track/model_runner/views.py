@@ -6,12 +6,12 @@ import asyncio
 from .utils import *
 
 class RunSam2View(View):
-    async def get(self, request):
+    def get(self, request):
         url = request.GET.get('url')
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
         
-        process_status, created = await async_to_sync(sync_to_async(ProcessStatus.objects.get_or_create(input_url=url)))
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url)
 
         if created:
             # Run sam_2_runner asynchronously
@@ -27,12 +27,12 @@ class RunSam2View(View):
 
 
 class RunYOLOView(View):
-    async def get(self, request):
+    def get(self, request):
         url = request.GET.get('url')
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
         
-        process_status, created = await async_to_sync(sync_to_async(ProcessStatus.objects.get_or_create(input_url=url)))
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url)
 
         if created:
             # Run yolo_runner asynchronously
