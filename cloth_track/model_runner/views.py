@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.views import View
 from asgiref.sync import async_to_sync, sync_to_async
+from threading import Thread
 import asyncio
 
 from .utils import *
@@ -15,15 +16,15 @@ class RunSam2View(View):
 
         if created:
             # Run sam_2_runner asynchronously
-            asyncio.create_task(self.run_sam_async(url))
+            thread = Thread(target=self.run_sam_2_in_thread, args=(url,))
+            thread.start()
             
             return JsonResponse({'message': 'SAM 2 run initiated'})
         else:
             return JsonResponse({'message': process_status})
 
-    async def run_sam_async(self, url):
-        # Run the sam_2_runner function asynchronously
-        await asyncio.to_thread(sam_2_runner, url)
+    def run_sam_2_in_thread(self, url):
+        sam_2_runner(url)
 
 
 class RunYOLOView(View):
@@ -36,15 +37,15 @@ class RunYOLOView(View):
 
         if created:
             # Run yolo_runner asynchronously
-            asyncio.create_task(self.run_yolo_async(url))
+            thread = Thread(target=self.run_yolo_in_thread, args=(url,))
+            thread.start()
             
             return JsonResponse({'message': 'YOLO run initiated'})
         else:
             return JsonResponse({'message': process_status})
 
-    async def run_yolo_async(self, url):
-        # Run the yolo_runner function asynchronously
-        await asyncio.to_thread(yolo_runner, url)
+    def run_yolo_in_thread(self, url):
+        yolo_runner(url)
 
 
 class DoubleNumberView(View):
