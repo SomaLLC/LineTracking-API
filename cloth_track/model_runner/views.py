@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.views import View
-from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync, sync_to_async
 import asyncio
 
 from .utils import *
@@ -11,7 +11,7 @@ class RunSam2View(View):
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
         
-        process_status, created = await sync_to_async(ProcessStatus.objects.get_or_create(input_url=url))
+        process_status, created = await async_to_sync(sync_to_async(ProcessStatus.objects.get_or_create(input_url=url)))
 
         if created:
             # Run sam_2_runner asynchronously
@@ -32,7 +32,7 @@ class RunYOLOView(View):
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
         
-        process_status, created = await sync_to_async(ProcessStatus.objects.get_or_create(input_url=url))
+        process_status, created = await async_to_sync(sync_to_async(ProcessStatus.objects.get_or_create(input_url=url)))
 
         if created:
             # Run yolo_runner asynchronously
