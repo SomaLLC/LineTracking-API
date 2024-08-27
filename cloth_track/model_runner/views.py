@@ -21,7 +21,7 @@ class RunSam2View(View):
             
             return JsonResponse({'message': 'SAM 2 run initiated'})
         else:
-            return JsonResponse({'message': process_status})
+            return JsonResponse({'message': str(process_status)})
 
     def run_sam_2_in_thread(self, url):
         sam_2_runner(url)
@@ -42,7 +42,7 @@ class RunYOLOView(View):
             
             return JsonResponse({'message': 'YOLO run initiated'})
         else:
-            return JsonResponse({'message': process_status})
+            return JsonResponse({'message': str(process_status)})
 
     def run_yolo_in_thread(self, url):
         yolo_runner(url)
