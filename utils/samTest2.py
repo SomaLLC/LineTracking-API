@@ -132,7 +132,8 @@ video_format = ""
 try:
     video_format = blob.format
     video_size = blob.size
+    Video_encoding = blob.encoding
 except:
     pass
 
-print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url} ; Format: {video_format} ; Size: {video_size}")
+print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url} ; Format: {video_format} ; Size: {video_size} ; Encoding: {Video_encoding}")
