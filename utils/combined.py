@@ -117,4 +117,15 @@ blob.make_public()
 
 # Get the public URL
 firebase_url = blob.public_url
-print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url}")
+video_format = ""
+video_size = ""
+video_encoding = ""
+try:
+    video_format = blob.format
+    video_size = blob.size
+    video_encoding = blob.encoding
+except:
+    pass
+
+print(f"Video uploaded to Firebase Storage. Public URL: {firebase_url} ; Format: {video_format} ; Size: {video_size} ; Encoding: {video_encoding}")
+
