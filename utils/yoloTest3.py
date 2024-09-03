@@ -58,7 +58,7 @@ while cap.isOpened():
         # Draw detections with confidence > 0.7
         for result in results:
             for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
-                if confidence > 0.5:
+                if confidence > 0.4:
                     #print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
 
                     cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
