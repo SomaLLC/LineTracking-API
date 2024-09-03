@@ -15,8 +15,14 @@ best_model_path = "/home/ubuntu/LineTracking-API/runs/detect/paper-yolo3"
 if os.path.exists(best_model_path):
     # Upload the model to Firebase Storage
     bucket = storage.bucket()
-    blob = bucket.blob('models/best_paper_yolo.pt')
-    blob.upload_from_filename(best_model_path)
+    # Upload all files in the directory to Firebase Storage
+    for root, dirs, files in os.walk(best_model_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            relative_path = os.path.relpath(file_path, best_model_path)
+            blob = bucket.blob(f'models/paper-yolo/{relative_path}')
+            blob.upload_from_filename(file_path)
+            print(f"Uploaded {file_path} to Firebase Storage")
 
     # Make the file public
     blob.make_public()
