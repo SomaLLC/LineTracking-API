@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['paper']
+
+roboflow:
+  workspace: talha-javed-mukhtar
+  project: paper-train-1uv8j
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/talha-javed-mukhtar/paper-train-1uv8j/dataset/1
