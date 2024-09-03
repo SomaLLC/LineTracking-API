@@ -44,36 +44,38 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 output_video_path = "output_video.avi"
 fourcc = cv2.VideoWriter_fourcc(*'MJPG')  # Using H.264 codec for better compatibility
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
-
 # Process the video frame by frame
+frame_count = 0
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
     
-    # Run YOLO model on the frame
-    results = model(frame)
-    # Draw detections with confidence > 0.7
-    for result in results:
-        for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
-            if confidence > 0.7:
-                #print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
+    # Process every 10th frame
+    if frame_count % 10 == 0:
+        # Run YOLO model on the frame
+        results = model(frame)
+        # Draw detections with confidence > 0.7
+        for result in results:
+            for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
+                if confidence > 0.7:
+                    #print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
 
-                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
-                label_text = f"{label} {confidence:.2f} ({int(bbox[0])}, {int(bbox[1])}, {int(bbox[2])}, {int(bbox[3])})"
-                cv2.putText(frame, label_text, (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
- 
-    # Save the frame as an image
-    output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
-    cv2.imwrite(output_path, frame)
-    
-    # Write the frame to the video file
-    out.write(frame)
+                    cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
+                    label_text = f"{label} {confidence:.2f} ({int(bbox[0])}, {int(bbox[1])}, {int(bbox[2])}, {int(bbox[3])})"
+                    cv2.putText(frame, label_text, (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+     
+        # Save the frame as an image
+        output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
+        cv2.imwrite(output_path, frame)
+        
+        # Write the frame to the video file
+        out.write(frame)
+        
+        percentage_processed = (frame_count / total_frames) * 100
+        print(f"Processed {percentage_processed:.2f}% of frames.")
     
     frame_count += 1
-
-    percentage_processed = (frame_count / total_frames) * 100
-    print(f"Processed {percentage_processed:.2f}% of frames.")
 
 # Release the video capture and writer
 cap.release()
