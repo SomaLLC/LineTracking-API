@@ -41,7 +41,7 @@ frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 # Define the codec and create a VideoWriter object to save the video
-output_video_path = "output_video_alt.avi"
+output_video_path = "output_video_alt2.avi"
 fourcc = cv2.VideoWriter_fourcc(*'MJPG')  # Using H.264 codec for better compatibility
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 # Process the video frame by frame
@@ -51,14 +51,14 @@ while cap.isOpened():
     if not ret:
         break
     
-    # Process every 10th frame
-    if frame_count % 2 == 0:
+    # Process every 5th frame
+    if frame_count % 5 == 0:
         # Run YOLO model on the frame
         results = model(frame)
         # Draw detections with confidence > 0.7
         for result in results:
             for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
-                if confidence > 0.3:
+                if confidence > 0.6:
                     #print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
 
                     cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
