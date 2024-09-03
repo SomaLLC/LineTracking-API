@@ -1,5 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, storage
+import os
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
