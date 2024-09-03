@@ -41,7 +41,7 @@ frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 # Define the codec and create a VideoWriter object to save the video
-output_video_path = "output_video.avi"
+output_video_path = "output_video_alt.avi"
 fourcc = cv2.VideoWriter_fourcc(*'MJPG')  # Using H.264 codec for better compatibility
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 # Process the video frame by frame
