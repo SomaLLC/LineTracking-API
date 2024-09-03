@@ -53,15 +53,15 @@ while cap.isOpened():
     
     # Run YOLO model on the frame
     results = model(frame)
-    
-    # Draw all detections
+    # Draw detections with confidence > 0.7
     for result in results:
-        for obj,label,bbox,confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
-            print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
+        for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
+            if confidence > 0.7:
+                #print(f"\n\n\n Detected {label} with confidence {confidence:.2f} at bbox {bbox}")
 
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
-            label_text = f"{label} {confidence:.2f} ({int(bbox[0])}, {int(bbox[1])}, {int(bbox[2])}, {int(bbox[3])})"
-            cv2.putText(frame, label_text, (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
+                label_text = f"{label} {confidence:.2f} ({int(bbox[0])}, {int(bbox[1])}, {int(bbox[2])}, {int(bbox[3])})"
+                cv2.putText(frame, label_text, (int(bbox[0]), int(bbox[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
  
     # Save the frame as an image
     output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
