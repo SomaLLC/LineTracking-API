@@ -139,6 +139,7 @@ def get_polygon_masks(image):
     # Define minimum area threshold for polygons
     min_area_threshold = 4000  # Adjust this value as needed
 
+    valid_masks = []
     for i, color in enumerate(unique_colors, start=1):
         # Skip black color (background)
         if np.all(color == [0, 0, 0]):
@@ -162,22 +163,17 @@ def get_polygon_masks(image):
             epsilon = 0.01 * cv2.arcLength(largest_contour, True)
             approx = cv2.approxPolyDP(largest_contour, epsilon, True)
             
-            # Draw the polygonal mask
-            section_mask = np.zeros((h, w, 3), dtype=np.uint8)
-            cv2.drawContours(section_mask, [approx], 0, color.tolist(), -1)
+            # Create a mask for this polygon
+            mask = np.zeros((h, w), dtype=np.uint8)
+            cv2.drawContours(mask, [approx], 0, 255, -1)
             
-            # Add the section mask to the combined mask
-            all_masks = cv2.add(all_masks, section_mask)
-            
-            # Calculate the center of the contour
-            M = cv2.moments(largest_contour)
-            if M["m00"] != 0:
-                cX = int(M["m10"] / M["m00"])
-                cY = int(M["m01"] / M["m00"])
-                
-                # Put the number in the center of the polygon
-                cv2.putText(all_masks, str(i), (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 
-                            1.0, (0, 0, 0), 3, cv2.LINE_AA)
+            valid_masks.append(mask)
+
+    # Stack the valid masks into a 3D array
+    if valid_masks:
+        all_masks = np.stack(valid_masks, axis=-1)
+    else:
+        all_masks = np.zeros((h, w, 1), dtype=np.uint8)
 
     return all_masks
 
@@ -232,7 +228,7 @@ while cap.isOpened():
     if frame_count == 0:
         polygon_masks = get_polygon_masks(frame)
         print(f"Shape of polygon_masks: {polygon_masks.shape}")
-        print(f"Number of unique polygons: {len(np.unique(polygon_masks))}")
+        print(f"Number of polygons: {polygon_masks.shape[2]}")
     
     # Overlay the polygon masks on the frame
     overlay = frame.copy()
