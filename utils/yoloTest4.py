@@ -177,7 +177,7 @@ def get_polygon_masks(image):
                 
                 # Put the number in the center of the polygon
                 cv2.putText(all_masks, str(i), (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 
-                            0.5, (0, 0, 0), 2, cv2.LINE_AA)
+                            1.0, (0, 0, 0), 3, cv2.LINE_AA)
 
     return all_masks
 
@@ -231,6 +231,8 @@ while cap.isOpened():
 
     if frame_count == 0:
         polygon_masks = get_polygon_masks(frame)
+        print(f"Shape of polygon_masks: {polygon_masks.shape}")
+        print(f"Number of unique polygons: {len(np.unique(polygon_masks))}")
     
     # Overlay the polygon masks on the frame
     overlay = frame.copy()
@@ -265,9 +267,12 @@ while cap.isOpened():
                     for i in range(polygon_masks.shape[2]):
                         overlap = cv2.bitwise_and(bbox_mask, polygon_masks[:,:,i])
                         overlap_area = np.sum(overlap > 0)
+                        print(f"Overlap area for polygon {i+1}: {overlap_area}")
                         if overlap_area > max_overlap:
                             max_overlap = overlap_area
-                            max_overlap_polygon = i + 1  # Adding 1 because polygon numbering starts from 1
+                            max_overlap_polygon = i + 1
+                    
+                    print(f"Selected polygon: {max_overlap_polygon}")
                     
                     # Calculate the center of the bounding box
                     center_x = (x1 + x2) // 2
