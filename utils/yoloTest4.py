@@ -263,12 +263,12 @@ while cap.isOpened():
                     for i in range(polygon_masks.shape[2]):
                         overlap = cv2.bitwise_and(bbox_mask, polygon_masks[:,:,i])
                         overlap_area = np.sum(overlap > 0)
-                        print(f"Overlap area for polygon {i+1}: {overlap_area}")
+                        #print(f"Overlap area for polygon {i+1}: {overlap_area}")
                         if overlap_area > max_overlap:
                             max_overlap = overlap_area
                             max_overlap_polygon = i + 1
                     
-                    print(f"Selected polygon: {max_overlap_polygon}")
+                    #print(f"Selected polygon: {max_overlap_polygon}")
                     
                     # Calculate the center of the bounding box
                     center_x = (x1 + x2) // 2
