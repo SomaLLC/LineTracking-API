@@ -296,9 +296,9 @@ while cap.isOpened():
                     
                     # Display bounding box ID and polygon number in the center
                     bb_text = f"BB {bb_id} in region {max_overlap_polygon}"
-                    cv2.putText(frame, "BB " + str(bb_id), (center_x + 30, center_y), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 0, 0), 3)
-                    cv2.putText(frame, " in ", (center_x + 90, center_y), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 3)
-                    cv2.putText(frame, "region " + str(max_overlap_polygon), (center_x + 220, center_y), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
+                    cv2.putText(frame, "BB " + str(bb_id), (center_x, center_y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 3)
+                    cv2.putText(frame, "in", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 3)
+                    cv2.putText(frame, "region " + str(max_overlap_polygon), (center_x, center_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 3)
 
                     # Add text with label and confidence
                     """ label_text = f"{label} {confidence:.2f}"
