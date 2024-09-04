@@ -243,21 +243,20 @@ while cap.isOpened():
         
     
     # Process every 5th frame
-    if True:
+    if frame_count % 5 == 0:
         # Run YOLO model on the frame
         results = model(frame)
         
         # Dictionary to store bounding boxes with unique IDs
         if 'bounding_boxes' not in locals():
             bounding_boxes = {}
-        
         # Draw detections with confidence > 0.5
+        num_bounding_boxes = 0
         for result in results:
             for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
                 if confidence > 0.5:
                     x1, y1, x2, y2 = map(int, bbox)
-                    new_bb = {'bbox': (x1, y1, x2, y2), 'label': label, 'confidence': confidence}
-                    
+                    new_bb = {'bbox': (x1, y1, x2, y2), 'label': label, 'confidence': confidence}     
                     # Check if the new bounding box matches any existing one
                     matched = False
                     for bb_id, existing_bb in bounding_boxes.items():
@@ -296,10 +295,13 @@ while cap.isOpened():
                     
                     # Display bounding box ID and polygon number in the center
                     bb_text = f"BB {bb_id} in region {max_overlap_polygon}"
-                    cv2.putText(frame, "BB " + str(bb_id), (center_x, center_y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 3)
-                    cv2.putText(frame, "in", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 3)
-                    cv2.putText(frame, "region " + str(max_overlap_polygon), (center_x, center_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (128, 0, 128), 3)
+                    #cv2.putText(frame, "BB " + str(bb_id), (center_x, center_y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 3)
+                    #cv2.putText(frame, "in", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 3)
+                    cv2.putText(frame, "in region " + str(max_overlap_polygon), (center_x, center_y + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (128, 0, 128), 3)
 
+
+                    num_bounding_boxes += 1
+    
                     # Add text with label and confidence
                     """ label_text = f"{label} {confidence:.2f}"
                     cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -331,6 +333,10 @@ while cap.isOpened():
                     # Add polygon number in the center of the bounding box
                     cv2.putText(frame, str(max_overlap_polygon), (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2) """
      
+        # Put number of bounding boxes in bottom right corner
+        cv2.putText(frame, f"Boxes: {num_bounding_boxes}", (frame_width - 150, frame_height - 20), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+                    
         # Save the frame as an image
         output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
         cv2.imwrite(output_path, frame)
