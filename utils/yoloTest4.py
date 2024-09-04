@@ -137,7 +137,7 @@ def get_polygon_masks(image):
     unique_colors = unique_colors[~np.all(unique_colors == color_at_origin, axis=1)]
 
     # Define minimum area threshold for polygons
-    min_area_threshold = 1000  # Adjust this value as needed
+    min_area_threshold = 4000  # Adjust this value as needed
 
     for i, color in enumerate(unique_colors, start=1):
         # Skip black color (background)
@@ -262,13 +262,20 @@ while cap.isOpened():
                     # Find the polygon with the most overlap
                     max_overlap = 0
                     max_overlap_polygon = 0
-                    for i in range(polygon_masks.shape[2]):
-                        overlap = cv2.bitwise_and(bbox_mask, polygon_masks[:,:,i])
-                        overlap_area = np.sum(overlap > 0)
+                    for i in range(len(polygon_masks)):
+                        # Extract the individual mask for the current polygon
+                        current_mask = polygon_masks[i]
+                        
+                        # Ensure the mask is binary (0 or 255)
+                        _, binary_mask = cv2.threshold(current_mask, 1, 255, cv2.THRESH_BINARY)
+                        
+                        # Calculate the overlap
+                        overlap = cv2.bitwise_and(bbox_mask, binary_mask)
+                        overlap_area = cv2.countNonZero(overlap)
+                        
                         if overlap_area > max_overlap:
                             max_overlap = overlap_area
                             max_overlap_polygon = i + 1  # Adding 1 because polygon numbering starts from 1
-                    
                     # Calculate the center of the bounding box
                     center_x = (x1 + x2) // 2
                     center_y = (y1 + y2) // 2
