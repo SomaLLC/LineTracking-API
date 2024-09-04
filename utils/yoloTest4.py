@@ -264,7 +264,7 @@ while cap.isOpened():
                         existing_area = (existing_bb['bbox'][2] - existing_bb['bbox'][0]) * (existing_bb['bbox'][3] - existing_bb['bbox'][1])
                         intersection_area = max(0, min(x2, existing_bb['bbox'][2]) - max(x1, existing_bb['bbox'][0])) * \
                                             max(0, min(y2, existing_bb['bbox'][3]) - max(y1, existing_bb['bbox'][1]))
-                        if intersection_area / existing_area > 0.9:
+                        if intersection_area / existing_area > 0.6:
                             bounding_boxes[bb_id] = new_bb
                             matched = True
                             break
