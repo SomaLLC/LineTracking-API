@@ -246,13 +246,61 @@ while cap.isOpened():
     if frame_count % 5 == 0:
         # Run YOLO model on the frame
         results = model(frame)
-        # Draw detections with confidence > 0.6
+        
+        # Dictionary to store bounding boxes with unique IDs
+        if 'bounding_boxes' not in locals():
+            bounding_boxes = {}
+        
+        # Draw detections with confidence > 0.5
         for result in results:
             for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
                 if confidence > 0.5:
                     x1, y1, x2, y2 = map(int, bbox)
+                    new_bb = {'bbox': (x1, y1, x2, y2), 'label': label, 'confidence': confidence}
+                    
+                    # Check if the new bounding box matches any existing one
+                    matched = False
+                    for bb_id, existing_bb in bounding_boxes.items():
+                        existing_area = (existing_bb['bbox'][2] - existing_bb['bbox'][0]) * (existing_bb['bbox'][3] - existing_bb['bbox'][1])
+                        intersection_area = max(0, min(x2, existing_bb['bbox'][2]) - max(x1, existing_bb['bbox'][0])) * \
+                                            max(0, min(y2, existing_bb['bbox'][3]) - max(y1, existing_bb['bbox'][1]))
+                        if intersection_area / existing_area > 0.9:
+                            bounding_boxes[bb_id] = new_bb
+                            matched = True
+                            break
+                    
+                    # If no match found, add as a new bounding box
+                    if not matched:
+                        new_id = max(bounding_boxes.keys(), default=0) + 1
+                        bounding_boxes[new_id] = new_bb
+                        bb_id = new_id
+                    
+                    # Draw the bounding box
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     
+                    # Find the polygon with the most overlap
+                    bbox_mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+                    cv2.rectangle(bbox_mask, (x1, y1), (x2, y2), 255, -1)
+                    max_overlap = 0
+                    max_overlap_polygon = 0
+                    for i in range(polygon_masks.shape[2]):
+                        overlap = cv2.bitwise_and(bbox_mask, polygon_masks[:,:,i])
+                        overlap_area = np.sum(overlap > 0)
+                        if overlap_area > max_overlap:
+                            max_overlap = overlap_area
+                            max_overlap_polygon = i + 1
+                    
+                    # Calculate the center of the bounding box
+                    center_x = (x1 + x2) // 2
+                    center_y = (y1 + y2) // 2
+                    
+                    # Display bounding box ID and polygon number in the center
+                    bb_text = f"BB {bb_id} in region {max_overlap_polygon}"
+                    cv2.putText(frame, bb_text, (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                    
+                    # Add text with label and confidence
+                    """ label_text = f"{label} {confidence:.2f}"
+                    cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                     # Create a mask for the bounding box
                     bbox_mask = np.zeros(frame.shape[:2], dtype=np.uint8)
                     cv2.rectangle(bbox_mask, (x1, y1), (x2, y2), 255, -1)
@@ -279,7 +327,7 @@ while cap.isOpened():
                     cv2.putText(frame, label_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                     
                     # Add polygon number in the center of the bounding box
-                    cv2.putText(frame, str(max_overlap_polygon), (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    cv2.putText(frame, str(max_overlap_polygon), (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2) """
      
         # Save the frame as an image
         output_path = os.path.join(output_dir, f"frame_{frame_count:04d}.jpg")
