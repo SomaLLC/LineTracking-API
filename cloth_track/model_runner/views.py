@@ -47,6 +47,26 @@ class RunYOLOView(View):
     def run_yolo_in_thread(self, url):
         yolo_runner(url)
 
+class RunCombinedView(View):
+    def get(self, request):
+        url = request.GET.get('url')
+        if not url:
+            return JsonResponse({'error': 'No URL provided'}, status=400)
+        
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="COMBINED")
+        
+        if created:
+            # Run combined_runner asynchronously
+            thread = Thread(target=self.run_combined_in_thread, args=(url,))
+            thread.start()
+            
+            return JsonResponse({'message': 'Combined run initiated'})
+        else:
+            return JsonResponse({'message': str(process_status)})
+
+    def run_combined_in_thread(self, url):
+        combined_runner(url)
+
 
 class DoubleNumberView(View):
     def get(self, request):
