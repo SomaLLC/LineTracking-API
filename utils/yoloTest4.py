@@ -4,6 +4,7 @@ import cv2
 import os
 from ultralytics import YOLO
 import torch
+import numpy as np
 
 def get_polygon_masks(image):
     # Convert the image to grayscale
