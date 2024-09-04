@@ -231,7 +231,7 @@ while cap.isOpened():
         print(f"Number of polygons: {polygon_masks.shape[2]}")
     
     # Overlay the polygon masks on the frame
-    overlay = frame.copy()
+    """overlay = frame.copy()
     for i in range(polygon_masks.shape[2]):
         mask = polygon_masks[:,:,i]
         color = np.random.randint(0, 255, 3).tolist()
@@ -239,7 +239,7 @@ while cap.isOpened():
     
     # Blend the overlay with the original frame
     alpha = 0.2  # Adjust this value to change the transparency (0.0 - 1.0)
-    frame = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
+    frame = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)"""
         
     
     # Process every 5th frame
@@ -249,7 +249,7 @@ while cap.isOpened():
         # Draw detections with confidence > 0.6
         for result in results:
             for obj, label, bbox, confidence in zip(result.boxes.data, result.boxes.cls, result.boxes.xyxy, result.boxes.conf):
-                if confidence > 0.6:
+                if confidence > 0.5:
                     x1, y1, x2, y2 = map(int, bbox)
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     
