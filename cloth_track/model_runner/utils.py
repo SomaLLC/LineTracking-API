@@ -212,8 +212,6 @@ def yolo_runner(video_url):
     cap.release()
     out.release()
 
-    #print(f"Processed {frame_count} frames. Video saved as '{output_video_path}'.")
-
     # Upload the video to Firebase Storage
     bucket = storage.bucket()
     blob = bucket.blob(output_video_path)
