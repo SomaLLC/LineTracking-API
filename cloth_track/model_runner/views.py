@@ -67,6 +67,46 @@ class RunCombinedView(View):
     def run_combined_in_thread(self, url):
         combined_runner(url)
 
+class RunCreateLipSyncView(View):
+    def get(self, request):
+        url = request.GET.get('url')
+        if not url:
+            return JsonResponse({'error': 'No URL provided'}, status=400)
+        
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="LIPSYNC")
+        
+        if created:
+            # Run combined_runner asynchronously
+            thread = Thread(target=self.run_create_lipsync_in_thread, args=(url,))
+            thread.start()
+            
+            return JsonResponse({'message': 'Create Lipsync run initiated'})
+        else:
+            return JsonResponse({'message': str(process_status)})
+
+    def run_create_lipsync_in_thread(self, url):
+        pass
+
+class RunCoverFingerView(View):
+    def get(self, request):
+        url = request.GET.get('url')
+        if not url:
+            return JsonResponse({'error': 'No URL provided'}, status=400)
+        
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="COVER_FINGER")
+        
+        if created:
+            # Run combined_runner asynchronously
+            thread = Thread(target=self.run_cover_finger_in_thread, args=(url,))
+            thread.start()
+            
+            return JsonResponse({'message': 'Cover Finger run initiated'})
+        else:
+            return JsonResponse({'message': str(process_status)})
+
+    def run_cover_finger_in_thread(self, url):
+        pass
+
 
 class DoubleNumberView(View):
     def get(self, request):
