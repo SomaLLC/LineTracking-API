@@ -41,19 +41,17 @@ image = cv2.imread(image_path)
 # Perform inference
 results = model(image)
 
-# Get segmentation masks
-masks = results.masks.xyxy[0]  # Assuming results.masks.xyxy contains the segmentation results
-
 # Create a blank mask
 height, width, _ = image.shape
 segmentation_mask = np.zeros((height, width), dtype=np.uint8)
 
-for mask in masks:
-    # Convert mask to binary format
-    mask = np.array(mask, dtype=np.uint8)
-    cv2.fillPoly(segmentation_mask, [mask], 255)
+for result in results:
+    for mask in result.masks.xyxy[0]:
+        # Convert mask to binary format
+        mask = np.array(mask, dtype=np.uint8)
+        cv2.fillPoly(segmentation_mask, [mask], 255)
 
-    print("Mask found!")
+        print("Mask found!")
 
 # Apply mask to the original image
 hand_segmented = cv2.bitwise_and(image, image, mask=segmentation_mask)
