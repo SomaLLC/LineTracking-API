@@ -29,20 +29,15 @@ dominos_logo_path = '../misc/dominos.png'  # Add path to the Domino's logo
 # Load hand image and convert it to RGB
 hand_img = cv2.imread(hand_image_path)
 hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
+
 # Detect hands in the image
 results = hands.process(hand_img_rgb)
 # Check if hand landmarks were detected
 
 height, width, _ = hand_img.shape
-
-image_path = 'path_to_your_image.jpg'
-image = cv2.imread(image_path)
-
 # Perform inference
-results = model(image)
+results = model(hand_img)
 
-# Create a blank mask
-height, width, _ = image.shape
 segmentation_mask = np.zeros((height, width), dtype=np.uint8)
 
 for result in results:
