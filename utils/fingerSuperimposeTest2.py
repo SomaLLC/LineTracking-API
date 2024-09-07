@@ -98,7 +98,7 @@ mask_pil = mask_pil.resize((w, h))
 masked_logo = Image.new('RGBA', (w, h), (0, 0, 0, 0))
 
 # Paste the rotated logo onto the new image
-masked_logo.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
+masked_logo.paste(rotated_logo, (paste_x-20, paste_y-20), rotated_logo)
 
 # Apply the mask to the logo
 masked_logo = Image.composite(masked_logo, Image.new('RGBA', (w, h), (0, 0, 0, 0)), mask_pil)
