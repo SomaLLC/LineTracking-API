@@ -87,7 +87,6 @@ mask = results[0].masks.data[0].cpu().numpy()
 
 # Convert the mask to uint8 format
 mask = (mask * 255).astype(np.uint8)
-
 # Create a PIL Image from the mask
 mask_pil = Image.fromarray(mask)
 
@@ -97,11 +96,18 @@ mask_pil = mask_pil.resize((w, h))
 # Create a new image for the masked logo
 masked_logo = Image.new('RGBA', (w, h), (0, 0, 0, 0))
 
-# Paste the rotated logo onto the new image
-masked_logo.paste(rotated_logo, (paste_x-20, paste_y-20), rotated_logo)
+# Calculate new position to paste the rotated logo (moved down the finger)
+finger_length = ((pinky_tip_x - pinky_base_x)**2 + (pinky_tip_y - pinky_base_y)**2)**0.5
+offset = int(finger_length * 0.2)  # Move logo down by 20% of finger length
+new_paste_x = paste_x
+new_paste_y = paste_y + offset
+
+# Paste the rotated logo onto the new image at the new position
+masked_logo.paste(rotated_logo, (new_paste_x, new_paste_y), rotated_logo)
 
 # Apply the mask to the logo
 masked_logo = Image.composite(masked_logo, Image.new('RGBA', (w, h), (0, 0, 0, 0)), mask_pil)
+
 # Paste the masked logo onto the hand image
 hand_img_pil.paste(masked_logo, (0, 0), masked_logo)
 
