@@ -12,7 +12,7 @@ firebase_admin.initialize_app(cred, {
 
 # Initialize Mediapipe Hands
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.7)
+hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.5)
 
 # Load the hand image and Domino's logo
 hand_image_path = '../misc/finger1.jpg'
@@ -61,3 +61,5 @@ if results.multi_hand_landmarks:
         print(f"Image uploaded to Firebase Storage. Public URL: {firebase_url}")
 
 print(f"Done!: ", results)
+
+print(f"Done?: ", results.multi_hand_landmarks)
