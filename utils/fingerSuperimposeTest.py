@@ -15,7 +15,7 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.5)
 
 # Load the hand image and Domino's logo
-hand_image_path = '../misc/finger2.jpg'
+hand_image_path = '../misc/finger4.jpg'
 dominos_logo_path = '../misc/dominos.png'  # Add path to the Domino's logo
 
 # Load hand image and convert it to RGB
@@ -28,21 +28,32 @@ results = hands.process(hand_img_rgb)
 # Check if hand landmarks were detected
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
-        # Get the pinky finger coordinates (landmark 20 is the tip of the pinky)
+        # Get the pinky finger coordinates (landmark 20 is the tip of the pinky, 19 is the base)
         pinky_tip = hand_landmarks.landmark[20]
+        pinky_base = hand_landmarks.landmark[19]
         h, w, _ = hand_img.shape
-        pinky_x = int(pinky_tip.x * w)
-        pinky_y = int(pinky_tip.y * h)
+        pinky_tip_x, pinky_tip_y = int(pinky_tip.x * w), int(pinky_tip.y * h)
+        pinky_base_x, pinky_base_y = int(pinky_base.x * w), int(pinky_base.y * h)
+
+        # Calculate angle of rotation
+        angle = np.degrees(np.arctan2(pinky_tip_y - pinky_base_y, pinky_tip_x - pinky_base_x))
 
         # Load Domino's logo as PIL image
         dominos_logo = Image.open(dominos_logo_path)
         dominos_logo = dominos_logo.resize((50, 50))  # Resize the logo to fit the pinky
 
+        # Rotate the logo
+        rotated_logo = dominos_logo.rotate(-angle, expand=True)
+
         # Convert the OpenCV image (hand_img) to PIL
         hand_img_pil = Image.fromarray(cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB))
 
-        # Superimpose the logo at the pinky location
-        hand_img_pil.paste(dominos_logo, (pinky_x - 25, pinky_y - 25), dominos_logo)
+        # Calculate position to paste the rotated logo
+        paste_x = pinky_tip_x - rotated_logo.width // 2
+        paste_y = pinky_tip_y - rotated_logo.height // 2
+
+        # Superimpose the rotated logo at the pinky location
+        hand_img_pil.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
 
         # Save or show the final image
         hand_img_pil.show()
