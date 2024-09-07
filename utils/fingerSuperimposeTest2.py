@@ -102,7 +102,6 @@ masked_logo.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
 
 # Apply the mask to the logo
 masked_logo = Image.composite(masked_logo, Image.new('RGBA', (w, h), (0, 0, 0, 0)), mask_pil)
-
 # Paste the masked logo onto the hand image
 hand_img_pil.paste(masked_logo, (0, 0), masked_logo)
 
@@ -116,17 +115,28 @@ mask_image = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 mask_image_path = 'hand_mask.png'
 cv2.imwrite(mask_image_path, mask_image)
 
+# Save the hand image with logo locally
+hand_image_path = 'hand_with_logo.png'
+hand_img_pil.save(hand_image_path)
+
 # Upload the mask image to Firebase Storage
 bucket = storage.bucket()
-blob = bucket.blob("hand_mask.png")
-blob.upload_from_filename(mask_image_path)
+mask_blob = bucket.blob("hand_mask.png")
+mask_blob.upload_from_filename(mask_image_path)
 
-# Make the file public
-blob.make_public()
+# Upload the hand image with logo to Firebase Storage
+hand_blob = bucket.blob("hand_with_logo.png")
+hand_blob.upload_from_filename(hand_image_path)
 
-# Get the public URL
-firebase_url = blob.public_url
+# Make the files public
+mask_blob.make_public()
+hand_blob.make_public()
 
-print(f"Mask image uploaded to Firebase Storage. Public URL: {firebase_url}")
+# Get the public URLs
+mask_firebase_url = mask_blob.public_url
+hand_firebase_url = hand_blob.public_url
+
+print(f"Mask image uploaded to Firebase Storage. Public URL: {mask_firebase_url}")
+print(f"Hand image with logo uploaded to Firebase Storage. Public URL: {hand_firebase_url}")
 
 print(f"Done!")
