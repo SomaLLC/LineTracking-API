@@ -67,4 +67,10 @@ for attr in dir(results):
     if not attr.startswith('__'):
         print(attr)
 
-print(results._asdict())
+print(results.multi_hand_world_landmarks)
+print(results.multi_handedness)
+print(results.multi_handedness[0])
+print(results.multi_handedness[0].classification)
+print(results.multi_handedness[0].classification[0])
+print(results.multi_handedness[0].classification[0].label)
+print(results.multi_handedness[0].classification[0].label)
