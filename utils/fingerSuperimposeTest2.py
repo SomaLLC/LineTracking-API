@@ -17,7 +17,7 @@ firebase_admin.initialize_app(cred, {
 
 # Initialize Mediapipe Hands
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0)
+hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.2)
 mp_drawing = mp.solutions.drawing_utils
 # Load the hand image and Domino's logo
 hand_image_path = '../misc/finger3.jpg'
@@ -29,26 +29,11 @@ model = SAM("../models/sam2_t.pt")
 hand_img = cv2.imread(hand_image_path)
 hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
 
-# Preprocess the image
-def preprocess_image(image):
-    # Resize image to a standard size
-    image = cv2.resize(image, (640, 480))
-    # Apply histogram equalization to improve contrast
-    image_yuv = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
-    image_yuv[:,:,0] = cv2.equalizeHist(image_yuv[:,:,0])
-    image = cv2.cvtColor(image_yuv, cv2.COLOR_YUV2BGR)
-    # Apply Gaussian blur to reduce noise
-    image = cv2.GaussianBlur(image, (5, 5), 0)
-    return image
+height, width, _ = hand_img.shape 
 
-hand_img_preprocessed = preprocess_image(hand_img)
-hand_img_rgb_preprocessed = cv2.cvtColor(hand_img_preprocessed, cv2.COLOR_BGR2RGB)
-
-height, width, _ = hand_img_preprocessed.shape 
-
-results = hands.process(hand_img_rgb_preprocessed)
+results = hands.process(hand_img_rgb)
 # Calculate the center of the image
-h, w, _ = hand_img_preprocessed.shape
+h, w, _ = hand_img.shape
 center_x_px = w // 2
 center_y_px = h // 2
 
