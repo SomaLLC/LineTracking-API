@@ -67,8 +67,13 @@ def process_image(hand_image_path):
             rotated_logo = resized_logo.rotate(-(angle + 90), expand=True)
 
             # Calculate position to paste the rotated logo
-            paste_x = pinky_tip_x - rotated_logo.width // 2
-            paste_y = pinky_tip_y - rotated_logo.height // 2
+            # Adjust the position based on the angle of the pinky
+            offset_factor = 0.2  # Adjust this value to control how far down the finger the logo is placed
+            offset_x = int(np.sin(np.radians(angle)) * pinky_length * offset_factor)
+            offset_y = int(np.cos(np.radians(angle)) * pinky_length * offset_factor)
+            
+            paste_x = pinky_tip_x - rotated_logo.width // 2 + offset_x
+            paste_y = pinky_tip_y - rotated_logo.height // 2 + offset_y
 
             # Convert the OpenCV image (hand_img) to PIL
             hand_img_pil = Image.fromarray(cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB))
@@ -106,13 +111,8 @@ def process_image(hand_image_path):
     # Create a new image for the masked logo
     masked_logo = Image.new('RGBA', (w, h), (0, 0, 0, 0))
 
-    # Calculate new position to paste the rotated logo (moved down the finger)
-    offset = int(pinky_length * 0.2)  # Move logo down by 20% of finger length
-    new_paste_x = paste_x - int(offset * 0.7)
-    new_paste_y = paste_y + offset
-
-    # Paste the rotated logo onto the new image at the new position
-    masked_logo.paste(rotated_logo, (new_paste_x, new_paste_y), rotated_logo)
+    # Paste the rotated logo onto the new image at the calculated position
+    masked_logo.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
 
     # Apply the mask to the logo
     masked_logo = Image.composite(masked_logo, Image.new('RGBA', (w, h), (0, 0, 0, 0)), mask_pil)
