@@ -66,6 +66,8 @@ def process_image(hand_image_path):
             # Rotate the logo
             rotated_logo = resized_logo.rotate(-(angle + 90), expand=True)
 
+            print("ANGLE: ", angle)
+
             # Calculate position to paste the rotated logo
             # Adjust the position based on the angle of the pinky
             offset_factor = 0.2  # Adjust this value to control how far down the finger the logo is placed
