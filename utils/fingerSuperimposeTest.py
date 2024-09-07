@@ -5,12 +5,17 @@ import firebase_admin
 from firebase_admin import credentials, storage
 import numpy as np
 from PIL import ImageDraw, ImageChops, ImageFilter
+import os
+from ultralytics import YOLO
+import torch
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
+
+model = YOLO("../models/yolov9m.pt") 
 
 # Initialize Mediapipe Hands
 mp_hands = mp.solutions.hands
@@ -29,45 +34,48 @@ results = hands.process(hand_img_rgb)
 # Check if hand landmarks were detected
 
 height, width, _ = hand_img.shape
+
+image_path = 'path_to_your_image.jpg'
+image = cv2.imread(image_path)
+
+# Perform inference
+results = model(image)
+
+# Get segmentation masks
+masks = results.masks.xyxy[0]  # Assuming results.masks.xyxy contains the segmentation results
+
 # Create a blank mask
-mask = np.zeros((height, width), dtype=np.uint8)
+height, width, _ = image.shape
+segmentation_mask = np.zeros((height, width), dtype=np.uint8)
 
-if results.multi_hand_landmarks:
-    for hand_landmarks in results.multi_hand_landmarks:
-        # Convert landmarks to pixel coordinates
-        landmarks = [(int(lm.x * width), int(lm.y * height)) for lm in hand_landmarks.landmark]
-        
-        # Create a mask using a more detailed contour
-        landmarks = np.array(landmarks, dtype=np.int32)
-        
-        # Draw hand contours on the mask
-        for i in range(len(landmarks) - 1):
-            cv2.line(mask, landmarks[i], landmarks[i + 1], 255, 2)
-        cv2.line(mask, landmarks[-1], landmarks[0], 255, 2)
+for mask in masks:
+    # Convert mask to binary format
+    mask = np.array(mask, dtype=np.uint8)
+    cv2.fillPoly(segmentation_mask, [mask], 255)
 
-        # Fill the mask using the polygon formed by the landmarks
-        cv2.fillConvexPoly(mask, landmarks, 255)
-        
-        hand_segmented = cv2.bitwise_and(hand_img, hand_img, mask=mask)
+    print("Mask found!")
 
-        # Load segmented image
-        segmented_image_path = 'path_to_segmented_image.png'
+# Apply mask to the original image
+hand_segmented = cv2.bitwise_and(image, image, mask=segmentation_mask)
 
-        # Save the segmented image locally
-        cv2.imwrite(segmented_image_path, hand_segmented)
+# Load segmented image
+segmented_image_path = 'path_to_segmented_image.png'
 
-        # Upload the image to Firebase Storage
-        bucket = storage.bucket()
-        blob = bucket.blob("hand_with_dominos_segmented.png")
-        blob.upload_from_filename(segmented_image_path)
+# Save the segmented image locally
+cv2.imwrite(segmented_image_path, hand_segmented)
 
-        # Make the file public
-        blob.make_public()
+# Upload the image to Firebase Storage
+bucket = storage.bucket()
+blob = bucket.blob("hand_with_dominos_segmented.png")
+blob.upload_from_filename(segmented_image_path)
 
-        # Get the public URL
-        firebase_url = blob.public_url
+# Make the file public
+blob.make_public()
 
-        print(f"SegmentedImage uploaded to Firebase Storage. Public URL: {firebase_url}")
+# Get the public URL
+firebase_url = blob.public_url
+
+print(f"SegmentedImage uploaded to Firebase Storage. Public URL: {firebase_url}")
 
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
