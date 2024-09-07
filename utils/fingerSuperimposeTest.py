@@ -66,3 +66,5 @@ print("Attributes of results:")
 for attr in dir(results):
     if not attr.startswith('__'):
         print(attr)
+
+print(results._asdict())
