@@ -74,7 +74,7 @@ def process_image(hand_image_path):
             offset_x = int(np.cos(np.radians(angle)) * pinky_length * offset_factor)
             offset_y = int(np.sin(np.radians(angle)) * pinky_length * offset_factor)
 
-            paste_x = pinky_tip_x - rotated_logo.width // 2 + offset_x
+            paste_x = pinky_tip_x + rotated_logo.width // 2 + offset_x
             paste_y = pinky_tip_y - rotated_logo.height // 2 + offset_y
 
             # Convert the OpenCV image (hand_img) to PIL
