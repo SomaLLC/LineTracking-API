@@ -52,7 +52,7 @@ for result in results:
             print("Mask found!")
 
 # Apply mask to the original image
-hand_segmented = cv2.bitwise_and(image, image, mask=segmentation_mask)
+hand_segmented = cv2.bitwise_and(hand_img, hand_img, mask=segmentation_mask)
 
 # Load segmented image
 segmented_image_path = 'path_to_segmented_image.png'
