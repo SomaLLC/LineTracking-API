@@ -76,7 +76,6 @@ class RunCreateLipSyncView(View):
         process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="LIPSYNC")
         
         if created:
-            # Run combined_runner asynchronously
             thread = Thread(target=self.run_create_lipsync_in_thread, args=(url,))
             thread.start()
             
@@ -96,7 +95,6 @@ class RunCoverFingerView(View):
         process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="COVER_FINGER")
         
         if created:
-            # Run combined_runner asynchronously
             thread = Thread(target=self.run_cover_finger_in_thread, args=(url,))
             thread.start()
             
