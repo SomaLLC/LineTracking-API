@@ -29,11 +29,26 @@ model = SAM("../models/sam2_t.pt")
 hand_img = cv2.imread(hand_image_path)
 hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
 
-height, width, _ = hand_img.shape 
+# Preprocess the image
+def preprocess_image(image):
+    # Resize image to a standard size
+    image = cv2.resize(image, (640, 480))
+    # Apply histogram equalization to improve contrast
+    image_yuv = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
+    image_yuv[:,:,0] = cv2.equalizeHist(image_yuv[:,:,0])
+    image = cv2.cvtColor(image_yuv, cv2.COLOR_YUV2BGR)
+    # Apply Gaussian blur to reduce noise
+    image = cv2.GaussianBlur(image, (5, 5), 0)
+    return image
 
-results = hands.process(hand_img_rgb)
+hand_img_preprocessed = preprocess_image(hand_img)
+hand_img_rgb_preprocessed = cv2.cvtColor(hand_img_preprocessed, cv2.COLOR_BGR2RGB)
+
+height, width, _ = hand_img_preprocessed.shape 
+
+results = hands.process(hand_img_rgb_preprocessed)
 # Calculate the center of the image
-h, w, _ = hand_img.shape
+h, w, _ = hand_img_preprocessed.shape
 center_x_px = w // 2
 center_y_px = h // 2
 
@@ -49,7 +64,7 @@ if results.multi_hand_landmarks:
 
         pinky_tip = hand_landmarks.landmark[20]
         pinky_base = hand_landmarks.landmark[19]
-        h, w, _ = hand_img.shape
+        h, w, _ = hand_img_preprocessed.shape
         pinky_tip_x, pinky_tip_y = int(pinky_tip.x * w), int(pinky_tip.y * h)
         pinky_base_x, pinky_base_y = int(pinky_base.x * w), int(pinky_base.y * h)
 
