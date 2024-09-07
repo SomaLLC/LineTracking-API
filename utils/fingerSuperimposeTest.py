@@ -23,7 +23,6 @@ dominos_logo_path = '../misc/dominos.png'  # Add path to the Domino's logo
 # Load hand image and convert it to RGB
 hand_img = cv2.imread(hand_image_path)
 hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
-
 # Detect hands in the image
 results = hands.process(hand_img_rgb)
 # Check if hand landmarks were detected
@@ -49,6 +48,24 @@ if results.multi_hand_landmarks:
 
         # Convert the OpenCV image (hand_img) to PIL
         hand_img_pil = Image.fromarray(cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB))
+
+        # Create a mask for the finger
+        mask = Image.new('L', hand_img_pil.size, 0)
+        draw = ImageDraw.Draw(mask)
+        
+        # Get all finger landmarks
+        finger_landmarks = [hand_landmarks.landmark[i] for i in range(18, 22)]  # Pinky finger landmarks
+        finger_points = [(int(lm.x * w), int(lm.y * h)) for lm in finger_landmarks]
+        
+        # Draw the finger mask
+        draw.polygon(finger_points, fill=255)
+
+        # Apply Gaussian blur to soften the mask edges
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=3))
+
+        # Create a new image for the trimmed logo
+        trimmed_logo = Image.new('RGBA', rotated_logo.size, (0, 0, 0, 0))
+        trimmed_logo.paste(rotated_logo, (0, 0), mask.resize(rotated_logo.size))
 
         # Calculate position to paste the rotated logo
         paste_x = pinky_tip_x - rotated_logo.width // 2
