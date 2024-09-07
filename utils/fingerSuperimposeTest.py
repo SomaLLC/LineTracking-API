@@ -41,14 +41,15 @@ results = model(hand_img)
 segmentation_mask = np.zeros((height, width), dtype=np.uint8)
 
 for result in results:
-    for mask in result.masks:
+    if result.masks:
+        for mask in result.masks:
 
-        coords = mask.xyxy[0]
-        # Convert mask to binary format
-        maskSpecific = np.array(coords, dtype=np.uint8)
-        cv2.fillPoly(segmentation_mask, [maskSpecific], 255)
+            coords = mask.xyxy[0]
+            # Convert mask to binary format
+            maskSpecific = np.array(coords, dtype=np.uint8)
+            cv2.fillPoly(segmentation_mask, [maskSpecific], 255)
 
-        print("Mask found!")
+            print("Mask found!")
 
 # Apply mask to the original image
 hand_segmented = cv2.bitwise_and(image, image, mask=segmentation_mask)
