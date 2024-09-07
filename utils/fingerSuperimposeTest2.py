@@ -20,7 +20,7 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.5)
 mp_drawing = mp.solutions.drawing_utils
 # Load the hand image and Domino's logo
-hand_image_path = '../misc/finger3.jpg'
+hand_image_path = '../misc/finger2.jpg'
 dominos_logo_path = '../misc/dominos.png'  # Add path to the Domino's logo
 
 model = SAM("../models/sam2_t.pt")
@@ -37,11 +37,35 @@ h, w, _ = hand_img.shape
 center_x_px = w // 2
 center_y_px = h // 2
 
+# Load Domino's logo as PIL image
+dominos_logo = Image.open(dominos_logo_path)
+logo_size = 250  # 5x the original size (50 * 5)
+dominos_logo = dominos_logo.resize((logo_size, logo_size))
+
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
         # Get all hand landmarks
         landmarks = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
-        
+
+        pinky_tip = hand_landmarks.landmark[20]
+        pinky_base = hand_landmarks.landmark[19]
+        h, w, _ = hand_img.shape
+        pinky_tip_x, pinky_tip_y = int(pinky_tip.x * w), int(pinky_tip.y * h)
+        pinky_base_x, pinky_base_y = int(pinky_base.x * w), int(pinky_base.y * h)
+
+        # Calculate angle of rotation
+        angle = np.degrees(np.arctan2(pinky_tip_y - pinky_base_y, pinky_tip_x - pinky_base_x))
+
+        # Rotate the logo
+        rotated_logo = dominos_logo.rotate(-(angle + 90), expand=True)
+
+        # Calculate position to paste the rotated logo
+        paste_x = pinky_tip_x - rotated_logo.width // 2
+        paste_y = pinky_tip_y - rotated_logo.height // 2
+
+        # Convert the OpenCV image (hand_img) to PIL
+        hand_img_pil = Image.fromarray(cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB))
+
         # Calculate the center of the hand
         hand_center_x = sum(lm[0] for lm in landmarks) / len(landmarks)
         hand_center_y = sum(lm[1] for lm in landmarks) / len(landmarks)
@@ -63,6 +87,27 @@ mask = results[0].masks.data[0].cpu().numpy()
 
 # Convert the mask to uint8 format
 mask = (mask * 255).astype(np.uint8)
+
+# Create a PIL Image from the mask
+mask_pil = Image.fromarray(mask)
+
+# Resize the mask to match the hand image size
+mask_pil = mask_pil.resize((w, h))
+
+# Create a new image for the masked logo
+masked_logo = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+
+# Paste the rotated logo onto the new image
+masked_logo.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
+
+# Apply the mask to the logo
+masked_logo = Image.composite(masked_logo, Image.new('RGBA', (w, h), (0, 0, 0, 0)), mask_pil)
+
+# Paste the masked logo onto the hand image
+hand_img_pil.paste(masked_logo, (0, 0), masked_logo)
+
+# Convert the result back to OpenCV format
+hand_img = cv2.cvtColor(np.array(hand_img_pil), cv2.COLOR_RGB2BGR)
 
 # Create an image showing the mask
 mask_image = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
