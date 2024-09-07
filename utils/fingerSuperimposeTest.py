@@ -3,6 +3,7 @@ import mediapipe as mp
 from PIL import Image
 import firebase_admin
 from firebase_admin import credentials, storage
+import numpy as np
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
