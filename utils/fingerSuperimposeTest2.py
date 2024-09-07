@@ -20,7 +20,7 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.2)
 mp_drawing = mp.solutions.drawing_utils
 # Load the hand image and Domino's logo
-hand_image_path = '../misc/finger3.jpg'
+hand_image_path = '../misc/finger1.jpg'
 dominos_logo_path = '../misc/dominos.png'  # Add path to the Domino's logo
 
 model = SAM("../models/sam2_t.pt")
