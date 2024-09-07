@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, storage
 import numpy as np
 from PIL import ImageDraw, ImageChops, ImageFilter
-
+from utils.mediapipe_drawing_utils import draw_landmarks
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
 firebase_admin.initialize_app(cred, {
@@ -15,6 +15,7 @@ firebase_admin.initialize_app(cred, {
 # Initialize Mediapipe Hands
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.5)
+mp_drawing = mp.solutions.drawing_utils
 
 # Load the hand image and Domino's logo
 hand_image_path = '../misc/finger2.jpg'
@@ -73,6 +74,8 @@ if results.multi_hand_landmarks:
 
         # Paste the rotated logo onto the hand image without masking
         hand_img_pil.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
+
+        mp_drawing.draw_landmarks(hand_img_pil, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
         # Save or show the final image
         hand_img_pil.show()
