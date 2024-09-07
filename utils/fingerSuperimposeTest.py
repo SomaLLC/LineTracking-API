@@ -4,7 +4,7 @@ from PIL import Image
 import firebase_admin
 from firebase_admin import credentials, storage
 import numpy as np
-from PIL import ImageDraw, ImageChops
+from PIL import ImageDraw, ImageChops, ImageFilter
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
