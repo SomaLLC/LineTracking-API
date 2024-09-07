@@ -58,7 +58,7 @@ def process_image(hand_image_path):
             logo_size = int(pinky_length / 3)
             
             # Resize the logo
-            resized_logo = dominos_logo.resize((logo_size *10, logo_size*10))
+            resized_logo = dominos_logo.resize((logo_size *7, logo_size*7))
 
             # Calculate angle of rotation
             angle = np.degrees(np.arctan2(pinky_tip_y - pinky_base_y, pinky_tip_x - pinky_base_x))
