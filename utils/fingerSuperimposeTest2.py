@@ -49,7 +49,7 @@ if results.multi_hand_landmarks:
 
         pinky_tip = hand_landmarks.landmark[20]
         pinky_base = hand_landmarks.landmark[19]
-        h, w, _ = hand_img_preprocessed.shape
+        h, w, _ = hand_img.shape
         pinky_tip_x, pinky_tip_y = int(pinky_tip.x * w), int(pinky_tip.y * h)
         pinky_base_x, pinky_base_y = int(pinky_base.x * w), int(pinky_base.y * h)
 
