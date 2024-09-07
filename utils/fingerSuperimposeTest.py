@@ -54,7 +54,7 @@ if results.multi_hand_landmarks:
         draw = ImageDraw.Draw(mask)
         
         # Get all finger landmarks
-        finger_landmarks = [hand_landmarks.landmark[i] for i in range(18, 22)]  # Pinky finger landmarks
+        finger_landmarks = [hand_landmarks.landmark[i] for i in range(18, 21)]  # Pinky finger landmarks
         finger_points = [(int(lm.x * w), int(lm.y * h)) for lm in finger_landmarks]
         
         # Draw the finger mask
