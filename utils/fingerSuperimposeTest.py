@@ -27,6 +27,11 @@ hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
 # Detect hands in the image
 results = hands.process(hand_img_rgb)
 # Check if hand landmarks were detected
+
+if results.multi_hand_landmarks:
+    for hand_landmarks in results.multi_hand_landmarks:
+        mp_drawing.draw_landmarks(hand_img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
         # Get the pinky finger coordinates (landmark 20 is the tip of the pinky, 19 is the base)
@@ -74,8 +79,6 @@ if results.multi_hand_landmarks:
 
         # Paste the rotated logo onto the hand image without masking
         hand_img_pil.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
-
-        mp_drawing.draw_landmarks(hand_img_pil, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
         # Save or show the final image
         hand_img_pil.show()
