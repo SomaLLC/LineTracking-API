@@ -69,8 +69,8 @@ def process_image(hand_image_path):
             # Calculate position to paste the rotated logo
             # Adjust the position based on the angle of the pinky
             offset_factor = 0.2  # Adjust this value to control how far down the finger the logo is placed
-            offset_x = int(np.sin(np.radians(angle)) * pinky_length * offset_factor)
-            offset_y = int(np.cos(np.radians(angle)) * pinky_length * offset_factor)
+            offset_x = int(np.cos(np.radians(angle)) * pinky_length * offset_factor)
+            offset_y = int(np.sin(np.radians(angle)) * pinky_length * offset_factor)
             
             paste_x = pinky_tip_x - rotated_logo.width // 2 + offset_x
             paste_y = pinky_tip_y - rotated_logo.height // 2 + offset_y
