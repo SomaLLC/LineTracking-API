@@ -23,8 +23,6 @@ mp_drawing = mp.solutions.drawing_utils
 # Load the Domino's logo
 dominos_logo_path = '../misc/dominos.png'
 dominos_logo = Image.open(dominos_logo_path)
-logo_size = 250  # 5x the original size (50 * 5)
-dominos_logo = dominos_logo.resize((logo_size, logo_size))
 
 model = SAM("../models/sam2_t.pt")
 
@@ -53,11 +51,20 @@ def process_image(hand_image_path):
             pinky_tip_x, pinky_tip_y = int(pinky_tip.x * w), int(pinky_tip.y * h)
             pinky_base_x, pinky_base_y = int(pinky_base.x * w), int(pinky_base.y * h)
 
+            # Calculate pinky length
+            pinky_length = ((pinky_tip_x - pinky_base_x)**2 + (pinky_tip_y - pinky_base_y)**2)**0.5
+            
+            # Calculate logo size (1/3 of pinky length)
+            logo_size = int(pinky_length / 3)
+            
+            # Resize the logo
+            resized_logo = dominos_logo.resize((logo_size, logo_size))
+
             # Calculate angle of rotation
             angle = np.degrees(np.arctan2(pinky_tip_y - pinky_base_y, pinky_tip_x - pinky_base_x))
 
             # Rotate the logo
-            rotated_logo = dominos_logo.rotate(-(angle + 90), expand=True)
+            rotated_logo = resized_logo.rotate(-(angle + 90), expand=True)
 
             # Calculate position to paste the rotated logo
             paste_x = pinky_tip_x - rotated_logo.width // 2
@@ -100,8 +107,7 @@ def process_image(hand_image_path):
     masked_logo = Image.new('RGBA', (w, h), (0, 0, 0, 0))
 
     # Calculate new position to paste the rotated logo (moved down the finger)
-    finger_length = ((pinky_tip_x - pinky_base_x)**2 + (pinky_tip_y - pinky_base_y)**2)**0.5
-    offset = int(finger_length * 0.2)  # Move logo down by 20% of finger length
+    offset = int(pinky_length * 0.2)  # Move logo down by 20% of finger length
     new_paste_x = paste_x - int(offset * 0.7)
     new_paste_y = paste_y + offset
 
