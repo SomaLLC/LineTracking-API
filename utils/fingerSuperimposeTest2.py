@@ -87,6 +87,20 @@ mask = results[0].masks.data[0].cpu().numpy()
 
 # Convert the mask to uint8 format
 mask = (mask * 255).astype(np.uint8)
+
+# Apply Gaussian blur to smooth the mask
+mask = cv2.GaussianBlur(mask, (5, 5), 0)
+
+# Apply threshold to sharpen the edges after smoothing
+_, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
+
+# Optionally, apply morphological operations for further smoothing
+kernel = np.ones((3, 3), np.uint8)
+mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+# Convert the mask to uint8 format
+mask = (mask * 255).astype(np.uint8)
 # Create a PIL Image from the mask
 mask_pil = Image.fromarray(mask)
 
@@ -99,7 +113,7 @@ masked_logo = Image.new('RGBA', (w, h), (0, 0, 0, 0))
 # Calculate new position to paste the rotated logo (moved down the finger)
 finger_length = ((pinky_tip_x - pinky_base_x)**2 + (pinky_tip_y - pinky_base_y)**2)**0.5
 offset = int(finger_length * 0.2)  # Move logo down by 20% of finger length
-new_paste_x = paste_x - offset
+new_paste_x = paste_x - int(offset * 0.7)
 new_paste_y = paste_y + offset
 
 # Paste the rotated logo onto the new image at the new position
