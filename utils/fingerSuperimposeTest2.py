@@ -99,7 +99,7 @@ masked_logo = Image.new('RGBA', (w, h), (0, 0, 0, 0))
 # Calculate new position to paste the rotated logo (moved down the finger)
 finger_length = ((pinky_tip_x - pinky_base_x)**2 + (pinky_tip_y - pinky_base_y)**2)**0.5
 offset = int(finger_length * 0.2)  # Move logo down by 20% of finger length
-new_paste_x = paste_x - (offset * 0.5)
+new_paste_x = paste_x - int(offset * 0.5)
 new_paste_y = paste_y + offset
 
 # Paste the rotated logo onto the new image at the new position
