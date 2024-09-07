@@ -28,9 +28,40 @@ hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
 results = hands.process(hand_img_rgb)
 # Check if hand landmarks were detected
 
+height, width, _ = hand_img.shape
+# Create a blank mask
+mask = np.zeros((height, width), dtype=np.uint8)
+
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
-        mp_drawing.draw_landmarks(hand_img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+        # Convert landmarks to pixel coordinates
+        landmarks = [(int(lm.x * width), int(lm.y * height)) for lm in hand_landmarks.landmark]
+
+        # Create a mask using convex hull of hand landmarks
+        points = np.array(landmarks, dtype=np.int32)
+        convex_hull = cv2.convexHull(points)
+        cv2.fillConvexPoly(mask, convex_hull, 255)
+        
+        hand_segmented = cv2.bitwise_and(hand_img, hand_img, mask=mask)
+
+        # Load segmented image
+        segmented_image_path = 'path_to_segmented_image.png'
+
+        # Save the segmented image locally
+        cv2.imwrite(segmented_image_path, hand_segmented)
+
+        # Upload the image to Firebase Storage
+        bucket = storage.bucket()
+        blob = bucket.blob("hand_with_dominos_segmented.png")
+        blob.upload_from_filename(segmented_image_path)
+
+        # Make the file public
+        blob.make_public()
+
+        # Get the public URL
+        firebase_url = blob.public_url
+
+        print(f"SegmentedImage uploaded to Firebase Storage. Public URL: {firebase_url}")
 
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
