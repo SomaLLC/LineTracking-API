@@ -59,3 +59,5 @@ if results.multi_hand_landmarks:
         # Get the public URL
         firebase_url = blob.public_url
         print(f"Image uploaded to Firebase Storage. Public URL: {firebase_url}")
+
+print(f"Done!: ", results)
