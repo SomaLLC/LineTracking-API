@@ -16,7 +16,7 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.5)
 
 # Load the hand image and Domino's logo
-hand_image_path = '../misc/finger4.jpg'
+hand_image_path = '../misc/finger2.jpg'
 dominos_logo_path = '../misc/dominos.png'  # Add path to the Domino's logo
 
 # Load hand image and convert it to RGB
@@ -25,7 +25,6 @@ hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
 
 # Detect hands in the image
 results = hands.process(hand_img_rgb)
-
 # Check if hand landmarks were detected
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
@@ -41,7 +40,8 @@ if results.multi_hand_landmarks:
 
         # Load Domino's logo as PIL image
         dominos_logo = Image.open(dominos_logo_path)
-        dominos_logo = dominos_logo.resize((50, 50))  # Resize the logo to fit the pinky
+        logo_size = 250  # 5x the original size (50 * 5)
+        dominos_logo = dominos_logo.resize((logo_size, logo_size))
 
         # Rotate the logo
         rotated_logo = dominos_logo.rotate(-angle, expand=True)
@@ -53,8 +53,26 @@ if results.multi_hand_landmarks:
         paste_x = pinky_tip_x - rotated_logo.width // 2
         paste_y = pinky_tip_y - rotated_logo.height // 2
 
-        # Superimpose the rotated logo at the pinky location
-        hand_img_pil.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
+        # Create a mask for the finger
+        mask = Image.new('L', hand_img_pil.size, 0)
+        mask_draw = ImageDraw.Draw(mask)
+
+        # Get all pinky finger landmarks
+        pinky_landmarks = [hand_landmarks.landmark[i] for i in range(17, 21)]
+        pinky_points = [(int(lm.x * w), int(lm.y * h)) for lm in pinky_landmarks]
+
+        # Draw the finger shape on the mask
+        mask_draw.polygon(pinky_points, fill=255)
+
+        # Create a new image for the masked logo
+        masked_logo = Image.new('RGBA', hand_img_pil.size, (0, 0, 0, 0))
+        masked_logo.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
+
+        # Apply the finger mask to the logo
+        masked_logo.putalpha(ImageChops.multiply(masked_logo.split()[3], mask))
+
+        # Superimpose the masked logo onto the hand image
+        hand_img_pil = Image.alpha_composite(hand_img_pil.convert('RGBA'), masked_logo)
 
         # Save or show the final image
         hand_img_pil.show()
@@ -72,9 +90,9 @@ if results.multi_hand_landmarks:
         firebase_url = blob.public_url
         print(f"Image uploaded to Firebase Storage. Public URL: {firebase_url}")
 
-print(f"Done!: ", results)
+print(f"Done!")
 
-print("Attributes of results:")
+"""print("Attributes of results:")
 for attr in dir(results):
     if not attr.startswith('__'):
         print(attr)
@@ -85,4 +103,4 @@ print(results.multi_handedness[0])
 print(results.multi_handedness[0].classification)
 print(results.multi_handedness[0].classification[0])
 print(results.multi_handedness[0].classification[0].label)
-print(results.multi_handedness[0].classification[0].label)
+print(results.multi_handedness[0].classification[0].label)"""
