@@ -62,4 +62,7 @@ if results.multi_hand_landmarks:
 
 print(f"Done!: ", results)
 
-print(f"Done?: ", results.multi_hand_landmarks)
+print("Attributes of results:")
+for attr in dir(results):
+    if not attr.startswith('__'):
+        print(attr)
