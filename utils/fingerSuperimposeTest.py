@@ -5,6 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, storage
 import numpy as np
 from PIL import ImageDraw, ImageChops
+
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
 firebase_admin.initialize_app(cred, {
@@ -53,26 +54,8 @@ if results.multi_hand_landmarks:
         paste_x = pinky_tip_x - rotated_logo.width // 2
         paste_y = pinky_tip_y - rotated_logo.height // 2
 
-        # Create a mask for the finger
-        mask = Image.new('L', hand_img_pil.size, 0)
-        mask_draw = ImageDraw.Draw(mask)
-
-        # Get all pinky finger landmarks
-        pinky_landmarks = [hand_landmarks.landmark[i] for i in range(17, 21)]
-        pinky_points = [(int(lm.x * w), int(lm.y * h)) for lm in pinky_landmarks]
-
-        # Draw the finger shape on the mask
-        mask_draw.polygon(pinky_points, fill=255)
-
-        # Create a new image for the masked logo
-        masked_logo = Image.new('RGBA', hand_img_pil.size, (0, 0, 0, 0))
-        masked_logo.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
-
-        # Apply the finger mask to the logo
-        masked_logo.putalpha(ImageChops.multiply(masked_logo.split()[3], mask))
-
-        # Superimpose the masked logo onto the hand image
-        hand_img_pil = Image.alpha_composite(hand_img_pil.convert('RGBA'), masked_logo)
+        # Paste the rotated logo onto the hand image without masking
+        hand_img_pil.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
 
         # Save or show the final image
         hand_img_pil.show()
