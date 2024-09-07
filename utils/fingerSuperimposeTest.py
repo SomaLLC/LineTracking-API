@@ -30,10 +30,6 @@ dominos_logo_path = '../misc/dominos.png'  # Add path to the Domino's logo
 hand_img = cv2.imread(hand_image_path)
 hand_img_rgb = cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB)
 
-# Detect hands in the image
-results = hands.process(hand_img_rgb)
-# Check if hand landmarks were detected
-
 height, width, _ = hand_img.shape
 # Perform inference
 results = model(hand_img)
@@ -72,6 +68,9 @@ blob.make_public()
 firebase_url = blob.public_url
 
 print(f"SegmentedImage uploaded to Firebase Storage. Public URL: {firebase_url}")
+
+# Detect hands in the image
+results = hands.process(hand_img_rgb)
 
 if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
