@@ -45,7 +45,7 @@ if results.multi_hand_landmarks:
         dominos_logo = dominos_logo.resize((logo_size, logo_size))
 
         # Rotate the logo
-        rotated_logo = dominos_logo.rotate(-angle, expand=True)
+        rotated_logo = dominos_logo.rotate(-(angle + 90), expand=True)
 
         # Convert the OpenCV image (hand_img) to PIL
         hand_img_pil = Image.fromarray(cv2.cvtColor(hand_img, cv2.COLOR_BGR2RGB))
