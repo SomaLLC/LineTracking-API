@@ -36,11 +36,17 @@ if results.multi_hand_landmarks:
     for hand_landmarks in results.multi_hand_landmarks:
         # Convert landmarks to pixel coordinates
         landmarks = [(int(lm.x * width), int(lm.y * height)) for lm in hand_landmarks.landmark]
+        
+        # Create a mask using a more detailed contour
+        landmarks = np.array(landmarks, dtype=np.int32)
+        
+        # Draw hand contours on the mask
+        for i in range(len(landmarks) - 1):
+            cv2.line(mask, landmarks[i], landmarks[i + 1], 255, 2)
+        cv2.line(mask, landmarks[-1], landmarks[0], 255, 2)
 
-        # Create a mask using convex hull of hand landmarks
-        points = np.array(landmarks, dtype=np.int32)
-        convex_hull = cv2.convexHull(points)
-        cv2.fillConvexPoly(mask, convex_hull, 255)
+        # Fill the mask using the polygon formed by the landmarks
+        cv2.fillConvexPoly(mask, landmarks, 255)
         
         hand_segmented = cv2.bitwise_and(hand_img, hand_img, mask=mask)
 
