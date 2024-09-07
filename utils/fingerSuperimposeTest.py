@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, storage
 import numpy as np
 from PIL import ImageDraw, ImageChops, ImageFilter
-from utils.mediapipe_drawing_utils import draw_landmarks
+
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
 firebase_admin.initialize_app(cred, {
