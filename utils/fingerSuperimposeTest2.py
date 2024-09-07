@@ -91,16 +91,6 @@ mask = (mask * 255).astype(np.uint8)
 # Apply Gaussian blur to smooth the mask
 mask = cv2.GaussianBlur(mask, (5, 5), 0)
 
-# Apply threshold to sharpen the edges after smoothing
-_, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
-
-# Optionally, apply morphological operations for further smoothing
-kernel = np.ones((3, 3), np.uint8)
-mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
-# Convert the mask to uint8 format
-mask = (mask * 255).astype(np.uint8)
 # Create a PIL Image from the mask
 mask_pil = Image.fromarray(mask)
 
