@@ -78,7 +78,7 @@ def process_image(hand_image_path):
 
             # Calculate position to paste the rotated logo
             # Adjust the position based on the angle of the pinky
-            offset_factor = 0.3  # Adjust this value to control how far down the finger the logo is placed
+            offset_factor = 0.5  # Adjust this value to control how far down the finger the logo is placed
             offset_x = int(np.cos(np.radians(angle)) * pinky_length * offset_factor)
             offset_y = int(np.sin(np.radians(angle)) * pinky_length * offset_factor)
 
@@ -102,26 +102,26 @@ def process_image(hand_image_path):
 
     # Run SAM on the center of the image
     results = model(hand_img_rgb, points=[[center_x_px, center_y_px]])
-
     # Get the mask from the results
     mask = results[0].masks.data[0].cpu().numpy()
 
     # Convert the mask to uint8 format
     mask = (mask * 255).astype(np.uint8)
 
-    # Apply Gaussian blur to smooth the mask
-    mask = cv2.GaussianBlur(mask, (15, 15), 0)
-
-    # Apply morphological operations to further smooth the mask
+    # Apply morphological operations to smooth the overall shape
     kernel = np.ones((5,5), np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
-    # Apply edge-preserving filter
-    mask = cv2.edgePreservingFilter(mask, flags=1, sigma_s=60, sigma_r=0.4)
+    # Use distance transform and threshold to sharpen edges
+    dist = cv2.distanceTransform(mask, cv2.DIST_L2, 3)
+    _, mask = cv2.threshold(dist, 0.5 * dist.max(), 255, 0)
 
-    # Apply bilateral filter to smooth while preserving edges
-    mask = cv2.bilateralFilter(mask, 9, 75, 75)
+    # Convert back to uint8
+    mask = mask.astype(np.uint8)
+
+    # Optional: Apply a very small amount of edge-preserving smoothing
+    mask = cv2.edgePreservingFilter(mask, flags=1, sigma_s=5, sigma_r=0.1)
 
     # Create a PIL Image from the mask
     mask_pil = Image.fromarray(mask)
