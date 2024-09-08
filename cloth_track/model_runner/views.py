@@ -103,7 +103,7 @@ class RunCoverFingerView(View):
             return JsonResponse({'message': str(process_status)})
 
     def run_cover_finger_in_thread(self, url):
-        pass
+        cover_finger_runner(url)
 
 
 class DoubleNumberView(View):
