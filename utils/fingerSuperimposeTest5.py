@@ -104,24 +104,21 @@ def process_image(hand_image_path):
     results = model(hand_img_rgb, points=[[center_x_px, center_y_px]])
     # Get the mask from the results
     mask = results[0].masks.data[0].cpu().numpy()
-
     # Convert the mask to uint8 format
     mask = (mask * 255).astype(np.uint8)
 
-    # Apply morphological operations to smooth the overall shape
-    kernel = np.ones((5,5), np.uint8)
+    # Apply Gaussian blur to smooth the edges
+    mask = cv2.GaussianBlur(mask, (15, 15), 0)
+
+    # Apply threshold to sharpen the mask
+    _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
+
+    # Use morphological operations to make edges more circular
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
-    # Use distance transform and threshold to sharpen edges
-    dist = cv2.distanceTransform(mask, cv2.DIST_L2, 3)
-    _, mask = cv2.threshold(dist, 0.5 * dist.max(), 255, 0)
-
-    # Convert back to uint8
-    mask = mask.astype(np.uint8)
-
-    # Optional: Apply a very small amount of edge-preserving smoothing
-    mask = cv2.edgePreservingFilter(mask, flags=1, sigma_s=5, sigma_r=0.1)
+    # Optional: Apply another light Gaussian blur for final smoothing
+    mask = cv2.GaussianBlur(mask, (5, 5), 0)
 
     # Create a PIL Image from the mask
     mask_pil = Image.fromarray(mask)
