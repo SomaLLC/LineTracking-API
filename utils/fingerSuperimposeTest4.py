@@ -43,7 +43,7 @@ def detect_and_save(image_path):
                 cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     # Save the image locally
-    output_path = "output_image.jpg"
+    output_path = f"output_{os.path.basename(image_path)}"
     cv2.imwrite(output_path, image)
 
     # Upload the image to Firebase Storage
@@ -61,6 +61,8 @@ def detect_and_save(image_path):
     # Clean up the local file
     os.remove(output_path)
 
-# Example usage
-image_path = "../misc/finger9.jpg"  # Replace with the path to your image
-detect_and_save(image_path)
+# Process all images from finger1.jpg to finger10.jpg
+for i in range(1, 11):
+    image_path = f"../misc/finger{i}.jpg"
+    print(f"Processing {image_path}")
+    detect_and_save(image_path)
