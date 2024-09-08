@@ -110,7 +110,18 @@ def process_image(hand_image_path):
     mask = (mask * 255).astype(np.uint8)
 
     # Apply Gaussian blur to smooth the mask
-    mask = cv2.GaussianBlur(mask, (5, 5), 0)
+    mask = cv2.GaussianBlur(mask, (15, 15), 0)
+
+    # Apply morphological operations to further smooth the mask
+    kernel = np.ones((5,5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+    # Apply edge-preserving filter
+    mask = cv2.edgePreservingFilter(mask, flags=1, sigma_s=60, sigma_r=0.4)
+
+    # Apply bilateral filter to smooth while preserving edges
+    mask = cv2.bilateralFilter(mask, 9, 75, 75)
 
     # Create a PIL Image from the mask
     mask_pil = Image.fromarray(mask)
