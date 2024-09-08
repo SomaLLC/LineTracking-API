@@ -15,6 +15,7 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
 
+#TODO: try pretrained YOLO instead of mediapipe
 # Initialize Mediapipe Hands
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0)
