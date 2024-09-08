@@ -132,7 +132,7 @@ def process_image(hand_image_path):
     return hand_img_pil, mask_image
 
 # Process all images
-for i in range(1, 9):
+for i in range(9, 11):
     hand_image_path = f'../misc/finger{i}.jpg'
     hand_img_pil, mask_image = process_image(hand_image_path)
 
