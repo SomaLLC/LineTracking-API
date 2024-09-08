@@ -48,18 +48,25 @@ def process_image(hand_image_path):
 
             pinky_tip = hand_landmarks.landmark[20]
             pinky_base = hand_landmarks.landmark[19]
+            pinky_mcp = hand_landmarks.landmark[17]  # Pinky metacarpophalangeal joint
             h, w, _ = hand_img.shape
             pinky_tip_x, pinky_tip_y = int(pinky_tip.x * w), int(pinky_tip.y * h)
             pinky_base_x, pinky_base_y = int(pinky_base.x * w), int(pinky_base.y * h)
+            pinky_mcp_x, pinky_mcp_y = int(pinky_mcp.x * w), int(pinky_mcp.y * h)
 
             # Calculate pinky length
             pinky_length = ((pinky_tip_x - pinky_base_x)**2 + (pinky_tip_y - pinky_base_y)**2)**0.5
             
+            # Calculate finger width (distance between pinky base and MCP joint)
+            finger_width = ((pinky_base_x - pinky_mcp_x)**2 + (pinky_base_y - pinky_mcp_y)**2)**0.5
+            
             # Calculate logo size (1/3 of pinky length)
             logo_size = int(pinky_length / 3)
             
-            # Resize the logo
-            resized_logo = dominos_logo.resize((logo_size *7, logo_size*7))
+            # Resize the logo, making it 2% wider than the finger width
+            logo_width = int(finger_width * 1.02)  # 2% wider
+            logo_height = int(logo_width * (dominos_logo.height / dominos_logo.width))  # Maintain aspect ratio
+            resized_logo = dominos_logo.resize((logo_width, logo_height))
 
             # Calculate angle of rotation
             angle = np.degrees(np.arctan2(pinky_tip_y - pinky_base_y, pinky_tip_x - pinky_base_x))
