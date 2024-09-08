@@ -1,5 +1,6 @@
 import firebase_admin
 from firebase_admin import credentials, storage
+import mediapipe as mp
 import cv2
 import os
 from django.http import JsonResponse
@@ -9,6 +10,8 @@ import numpy as np
 import torch
 import torchvision.transforms as transforms
 import hashlib
+from io import BytesIO
+import requests
 
 from .models import ProcessStatus
 from cloth_track.settings import BASE_DIR
@@ -372,6 +375,122 @@ def combined_runner(video_url):
         print(f"Deleted local video file: {output_video_path}")
     except OSError as e:
         print(f"Error deleting file {output_video_path}: {e}")
+
+def cover_finger_runner(image_url):
+    update_process_status(input_url=image_url,model_name="COVER_FINGER",percentage_completion=0,message="Initiating...")
+    # Initialize Mediapipe Hands
+    mp_hands = mp.solutions.hands
+    hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0)
+
+    # Load the Domino's logo
+    dominos_logo_path = os.path.join(parent_dir, 'misc', 'dominos.png')
+    dominos_logo = Image.open(dominos_logo_path)
+
+    # Load SAM model
+    sam_model = SAM(sam_2_path)
+
+    # Download the image from the URL
+    response = requests.get(image_url)
+    hand_img = Image.open(BytesIO(response.content))
+    hand_img_rgb = np.array(hand_img.convert('RGB'))
+
+    height, width, _ = hand_img_rgb.shape 
+
+    results = hands.process(hand_img_rgb)
+    
+    # Calculate the center of the image
+    center_x_px, center_y_px = width // 2, height // 2
+
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            # Get all hand landmarks
+            landmarks = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
+
+            pinky_tip = hand_landmarks.landmark[20]
+            pinky_base = hand_landmarks.landmark[19]
+            pinky_mcp = hand_landmarks.landmark[17]  # Pinky metacarpophalangeal joint
+            
+            pinky_tip_x, pinky_tip_y = int(pinky_tip.x * width), int(pinky_tip.y * height)
+            pinky_base_x, pinky_base_y = int(pinky_base.x * width), int(pinky_base.y * height)
+            pinky_mcp_x, pinky_mcp_y = int(pinky_mcp.x * width), int(pinky_mcp.y * height)
+
+            # Calculate pinky length and finger width
+            pinky_length = ((pinky_tip_x - pinky_base_x)**2 + (pinky_tip_y - pinky_base_y)**2)**0.5
+            finger_width = ((pinky_base_x - pinky_mcp_x)**2 + (pinky_base_y - pinky_mcp_y)**2)**0.5
+            
+            # Resize the logo
+            logo_width = int(finger_width * 1.02)
+            logo_height = int(logo_width * (dominos_logo.height / dominos_logo.width))
+            resized_logo = dominos_logo.resize((logo_width, logo_height))
+
+            # Calculate angle of rotation
+            angle = np.degrees(np.arctan2(pinky_tip_y - pinky_base_y, pinky_tip_x - pinky_base_x))
+
+            # Rotate the logo
+            rotated_logo = resized_logo.rotate(-(angle + 90), expand=True)
+
+            # Calculate position to paste the rotated logo
+            offset_factor = 0.5
+            offset_x = int(np.cos(np.radians(angle)) * pinky_length * offset_factor)
+            offset_y = int(np.sin(np.radians(angle)) * pinky_length * offset_factor)
+
+            paste_x = pinky_tip_x - rotated_logo.width // 2 - offset_x
+            paste_y = pinky_tip_y - rotated_logo.height // 2 - offset_y
+
+            # Calculate the center of the hand
+            hand_center_x = sum(lm[0] for lm in landmarks) / len(landmarks)
+            hand_center_y = sum(lm[1] for lm in landmarks) / len(landmarks)
+            
+            center_x_px = int(hand_center_x * width)
+            center_y_px = int(hand_center_y * height)
+
+    update_process_status(input_url=image_url, model_name="COVER_FINGER", percentage_completion=30, message="Hand landmarks detected")
+
+    # Run SAM on the center of the image
+    results = sam_model(hand_img_rgb, points=[[center_x_px, center_y_px]])
+    mask = results[0].masks.data[0].cpu().numpy()
+    mask = (mask * 255).astype(np.uint8)
+
+    # Process the mask
+    mask = cv2.GaussianBlur(mask, (15, 15), 0)
+    _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask = cv2.GaussianBlur(mask, (5, 5), 0)
+
+    update_process_status(input_url=image_url, model_name="COVER_FINGER", percentage_completion=60, message="Mask generated")
+
+    # Create a PIL Image from the mask
+    mask_pil = Image.fromarray(mask).resize((width, height))
+
+    # Create a new image for the masked logo
+    masked_logo = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+    masked_logo.paste(rotated_logo, (paste_x, paste_y), rotated_logo)
+
+    # Apply the mask to the logo
+    masked_logo = Image.composite(masked_logo, Image.new('RGBA', (width, height), (0, 0, 0, 0)), mask_pil)
+
+    # Paste the masked logo onto the hand image
+    hand_img.paste(masked_logo, (0, 0), masked_logo)
+
+    update_process_status(input_url=image_url, model_name="COVER_FINGER", percentage_completion=90, message="Logo applied")
+
+    # Save the result
+    output_path = f"output_finger_cover_{hashlib.sha256(image_url.encode()).hexdigest()[:10]}.png"
+    hand_img.save(output_path)
+
+    # Upload to Firebase
+    bucket = storage.bucket()
+    blob = bucket.blob(output_path)
+    blob.upload_from_filename(output_path)
+    blob.make_public()
+    firebase_url = blob.public_url
+
+    # Clean up
+    os.remove(output_path)
+
+    update_process_status(input_url=image_url, model_name="COVER_FINGER", percentage_completion=100, output_url=firebase_url, message="Completed")
+
 
 def update_process_status(input_url, model_name, percentage_completion=None, output_url=None, message=None):
     # Example: Update the status for a particular input URL
