@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['pinky']
+
+roboflow:
+  workspace: paper-train
+  project: pinky-finger
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/paper-train/pinky-finger/dataset/1
