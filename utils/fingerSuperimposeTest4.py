@@ -62,5 +62,5 @@ def detect_and_save(image_path):
     os.remove(output_path)
 
 # Example usage
-image_path = "../misc/finger9.png"  # Replace with the path to your image
+image_path = "../misc/finger9.jpg"  # Replace with the path to your image
 detect_and_save(image_path)
