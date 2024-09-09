@@ -472,7 +472,6 @@ def cover_finger_runner(image_url):
 
     # Apply the mask to the logo
     masked_logo = Image.composite(masked_logo, Image.new('RGBA', (width, height), (0, 0, 0, 0)), mask_pil)
-
     # Paste the masked logo onto the hand image
     hand_img.paste(masked_logo, (0, 0), masked_logo)
 
@@ -480,7 +479,22 @@ def cover_finger_runner(image_url):
 
     # Save the result
     output_path = f"output_finger_cover_{hashlib.sha256(image_url.encode()).hexdigest()[:10]}.png"
-    hand_img.save(output_path)
+    
+    # Check file size and scale down if necessary
+    max_size = 4 * 1024 * 1024  # 4MB in bytes
+    
+    while True:
+        hand_img.save(output_path, format='PNG')
+        if os.path.getsize(output_path) <= max_size:
+            break
+        
+        # Scale down the image
+        current_width, current_height = hand_img.size
+        new_width = int(current_width * 0.9)
+        new_height = int(current_height * 0.9)
+        hand_img = hand_img.resize((new_width, new_height), Image.LANCZOS)
+
+    update_process_status(input_url=image_url, model_name="COVER_FINGER", percentage_completion=95, message="Image scaled down")
 
     # Upload to Firebase
     bucket = storage.bucket()
@@ -591,7 +605,6 @@ def cover_finger_string_based_runner(base64_image):
 
     # Apply the mask to the logo
     masked_logo = Image.composite(masked_logo, Image.new('RGBA', (width, height), (0, 0, 0, 0)), mask_pil)
-
     # Paste the masked logo onto the hand image
     hand_img.paste(masked_logo, (0, 0), masked_logo)
 
@@ -601,7 +614,24 @@ def cover_finger_string_based_runner(base64_image):
     output_buffer = BytesIO()
     hand_img.save(output_buffer, format='PNG')
     output_buffer.seek(0)
-    
+
+    # Check if the image size is greater than 4MB
+    if output_buffer.getbuffer().nbytes > 4 * 1024 * 1024:
+        # Calculate the scale factor to reduce the image size to 4MB
+        scale_factor = math.sqrt(4 * 1024 * 1024 / output_buffer.getbuffer().nbytes)
+        
+        # Calculate new dimensions
+        new_width = int(hand_img.width * scale_factor)
+        new_height = int(hand_img.height * scale_factor)
+        
+        # Resize the image
+        hand_img = hand_img.resize((new_width, new_height), Image.LANCZOS)
+        
+        # Save the resized image to a new BytesIO object
+        output_buffer = BytesIO()
+        hand_img.save(output_buffer, format='PNG', optimize=True)
+        output_buffer.seek(0)
+
     # Convert the output image to base64
     base64_output = base64.b64encode(output_buffer.getvalue()).decode('utf-8')
 
