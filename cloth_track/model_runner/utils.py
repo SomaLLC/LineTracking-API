@@ -608,7 +608,7 @@ def cover_finger_string_based_runner(base64_image):
     update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=100, base64_output=base64_output, message="Completed")
 
 
-def update_process_status(input_url, model_name, percentage_completion=None, output_url=None, message=None):
+def update_process_status(input_url, model_name, percentage_completion=None, output_url=None, message=None, base64_output=None):
     # Example: Update the status for a particular input URL
     process_status, created = ProcessStatus.objects.get_or_create(input_url=input_url,model_name=model_name)
     
@@ -621,6 +621,9 @@ def update_process_status(input_url, model_name, percentage_completion=None, out
 
     if message:
         process_status.message = message
+
+    if base64_output:
+        process_status.base64_output = base64_output
 
     process_status.save()
 
