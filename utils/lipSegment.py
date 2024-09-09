@@ -14,12 +14,12 @@ firebase_admin.initialize_app(cred, {
 })
 
 
-def segment_lips(frame):
+def segment_lips_and_teeth(frame):
     """
-    Segment lips from a frame and make the rest of the frame black.
+    Segment lips and teeth from a frame and make the rest of the frame black.
     
     :param frame: Input frame (BGR format)
-    :return: Frame with only lips visible, rest is black
+    :return: Frame with only lips and teeth visible, rest is black
     """
     mp_face_mesh = mp.solutions.face_mesh
     
@@ -34,13 +34,24 @@ def segment_lips(frame):
             face_landmarks = results.multi_face_landmarks[0]
             
             # Get lip landmarks (upper and lower lip)
-            lip_landmarks = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95]
+            lip_landmarks = [
+                # Upper lip outer contour
+                61, 185, 40, 39, 37, 0, 267, 269, 270, 409,
+                # Upper lip inner contour
+                191, 80, 81, 82, 13, 312, 311, 310, 415,
+                # Lower lip inner contour
+                78, 95, 88, 178, 87, 14, 317, 402, 318, 324,
+                # Lower lip outer contour
+                146, 91, 181, 84, 17, 314, 405, 321, 375, 291,
+                # Additional points for better coverage
+                76, 77, 90, 180, 85, 16, 315, 404, 320, 307
+            ]
             
             # Extract lip coordinates
             h, w = frame.shape[:2]
             lip_points = [(int(face_landmarks.landmark[i].x * w), int(face_landmarks.landmark[i].y * h)) for i in lip_landmarks]
             
-            # Create a mask for the lips
+            # Create a mask for the lips and teeth
             mask = np.zeros((h, w), dtype=np.uint8)
             cv2.fillPoly(mask, [np.array(lip_points)], 255)
             
@@ -60,7 +71,7 @@ def segment_lips(frame):
 
 def process_video(video_path, video_url, output_path):
     """
-    Process a video to segment lips and make the rest black.
+    Process a video to segment lips and teeth and make the rest black.
     
     :param video_path: Path to store the downloaded video file
     :param video_url: URL of the input video
@@ -86,7 +97,7 @@ def process_video(video_path, video_url, output_path):
             break
         
         # Process the frame
-        processed_frame = segment_lips(frame)
+        processed_frame = segment_lips_and_teeth(frame)
         
         # Write the frame
         out.write(processed_frame)
