@@ -20,7 +20,13 @@ class ProcessStatus(models.Model):
         if self.base64_output:
             return self.base64_output
         return None
-        
+
+    def get_completion_percentage(self):
+        """
+        Returns the completion percentage as a float.
+        """
+        return float(self.percentage_completion)
+
     class Meta:
         verbose_name = "Process Status"
         verbose_name_plural = "Process Statuses"

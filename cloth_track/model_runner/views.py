@@ -128,7 +128,8 @@ class RunCoverFingerStringBasedView(View):
             return JsonResponse({'message': 'Cover Finger String Based run initiated'})
         else:
             return JsonResponse({
-                'message': str(process_status),
+                'status': str(process_status.message),
+                'completion_percentage': str(process_status.get_completion_percentage()),
                 'base64_output': process_status.get_base64_output()
             })
 
