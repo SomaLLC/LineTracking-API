@@ -389,6 +389,8 @@ def cover_finger_runner(image_url):
     dominos_logo_path = os.path.join(parent_dir, 'misc', 'dominos.png')
     dominos_logo = Image.open(dominos_logo_path)
 
+    rotated_logo = dominos_logo
+
     # Load SAM model
     sam_model = SAM(sam_2_path)
 
@@ -521,6 +523,8 @@ def cover_finger_string_based_runner(base64_image):
     # Load the Domino's logo
     dominos_logo_path = os.path.join(parent_dir, 'misc', 'dominos.png')
     dominos_logo = Image.open(dominos_logo_path)
+
+    rotated_logo = dominos_logo
 
     # Load SAM model
     sam_model = SAM(sam_2_path)
