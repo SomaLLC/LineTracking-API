@@ -105,6 +105,31 @@ class RunCoverFingerView(View):
     def run_cover_finger_in_thread(self, url):
         cover_finger_runner(url)
 
+class RunCoverFingerStringBasedView(View):
+    def post(self, request):
+        base64_image = request.POST.get('base64_image')
+        if not base64_image:
+            return JsonResponse({'error': 'No base64 image provided'}, status=400)
+        
+        process_status, created = ProcessStatus.objects.get_or_create(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED")
+        
+        if created:
+            thread = Thread(target=self.run_cover_finger_string_based_in_thread, args=(base64_image,))
+            thread.start()
+            
+            return JsonResponse({'message': 'Cover Finger String Based run initiated'})
+        else:
+            return JsonResponse({
+                'message': str(process_status),
+                'base64_output': process_status.get_base64_output()
+            })
+
+    def run_cover_finger_string_based_in_thread(self, base64_image):
+        result_base64 = cover_finger_string_based_runner(base64_image)
+        process_status = ProcessStatus.objects.get(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED")
+        process_status.base64_output = result_base64
+        process_status.save()
+
 
 class DoubleNumberView(View):
     def get(self, request):

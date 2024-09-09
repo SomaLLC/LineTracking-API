@@ -7,5 +7,6 @@ urlpatterns = [
     path('run-combined/', views.RunCombinedView.as_view(), name='run_combined'),
     path('run-create-lipsync/', views.RunCreateLipSyncView.as_view(), name='run_create_lipsync'),
     path('run-cover-finger/', views.RunCoverFingerView.as_view(), name='run_cover_finger'),
+    path('run-cover-finger-string-based/', views.RunCoverFingerStringBasedView.as_view(), name='run_cover_finger_string_based'),
     path('test/', views.DoubleNumberView.as_view(), name='double_number'),
 ]
