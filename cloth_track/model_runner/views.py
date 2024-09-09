@@ -105,6 +105,10 @@ class RunCoverFingerView(View):
     def run_cover_finger_in_thread(self, url):
         cover_finger_runner(url)
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
+@method_decorator(csrf_exempt, name='dispatch')
 class RunCoverFingerStringBasedView(View):
     def post(self, request):
         base64_image = request.POST.get('base64_image')
