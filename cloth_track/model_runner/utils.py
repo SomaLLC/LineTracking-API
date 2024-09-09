@@ -448,6 +448,9 @@ def cover_finger_runner(image_url):
             
             center_x_px = int(hand_center_x * width)
             center_y_px = int(hand_center_y * height)
+    else:
+        update_process_status(input_url=image_url, model_name="COVER_FINGER", percentage_completion=30, message="Error: No Hand landmarks detected")
+        return
 
     update_process_status(input_url=image_url, model_name="COVER_FINGER", percentage_completion=30, message="Hand landmarks detected")
 
@@ -583,6 +586,9 @@ def cover_finger_string_based_runner(base64_image):
             
             center_x_px = int(hand_center_x * width)
             center_y_px = int(hand_center_y * height)
+    else:
+        update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=30, message="Error: No Hand landmarks detected")
+        return
 
     update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=30, message="Hand landmarks detected")
 
