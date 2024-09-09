@@ -13,6 +13,7 @@ import hashlib
 from io import BytesIO
 import requests
 from PIL import Image
+import base64
 
 from .models import ProcessStatus
 from cloth_track.settings import BASE_DIR
