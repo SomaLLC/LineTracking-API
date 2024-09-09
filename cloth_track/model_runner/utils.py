@@ -14,7 +14,7 @@ from io import BytesIO
 import requests
 from PIL import Image
 import base64
-
+import math
 
 from .models import ProcessStatus
 from cloth_track.settings import BASE_DIR
