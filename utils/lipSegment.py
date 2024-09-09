@@ -118,5 +118,5 @@ def process_video(video_path, video_url, output_path):
 # Example usage:
 video_path = 'temp_input_video.mp4'
 video_url = 'https://drive.google.com/uc?export=download&id=1zPNI_dwRa53NfniDhQc3sGa0YYaY-kQj'
-output_video = 'path/to/output/video.mp4'
+output_video = 'output_video.mp4'  # Changed to a simple filename in the current directory
 process_video(video_path, video_url, output_video)
