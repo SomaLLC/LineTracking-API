@@ -15,6 +15,7 @@ import requests
 from PIL import Image
 import base64
 
+
 from .models import ProcessStatus
 from cloth_track.settings import BASE_DIR
 
@@ -495,7 +496,10 @@ def cover_finger_runner(image_url):
 
 
 def cover_finger_string_based_runner(base64_image):
-    update_process_status(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED", percentage_completion=0, message="Initiating...")
+    # Generate a hash of the base64_image
+    image_hash = hashlib.sha256(base64_image.encode()).hexdigest()[:10]
+
+    update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=0, message="Initiating...")
     # Initialize Mediapipe Hands
     mp_hands = mp.solutions.hands
     hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0)
@@ -562,7 +566,7 @@ def cover_finger_string_based_runner(base64_image):
             center_x_px = int(hand_center_x * width)
             center_y_px = int(hand_center_y * height)
 
-    update_process_status(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED", percentage_completion=30, message="Hand landmarks detected")
+    update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=30, message="Hand landmarks detected")
 
     # Run SAM on the center of the image
     results = sam_model(hand_img_rgb, points=[[center_x_px, center_y_px]])
@@ -576,7 +580,7 @@ def cover_finger_string_based_runner(base64_image):
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     mask = cv2.GaussianBlur(mask, (5, 5), 0)
 
-    update_process_status(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED", percentage_completion=60, message="Mask generated")
+    update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=60, message="Mask generated")
 
     # Create a PIL Image from the mask
     mask_pil = Image.fromarray(mask).resize((width, height))
@@ -591,7 +595,7 @@ def cover_finger_string_based_runner(base64_image):
     # Paste the masked logo onto the hand image
     hand_img.paste(masked_logo, (0, 0), masked_logo)
 
-    update_process_status(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED", percentage_completion=90, message="Logo applied")
+    update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=90, message="Logo applied")
 
     # Save the result to a BytesIO object
     output_buffer = BytesIO()
@@ -601,7 +605,7 @@ def cover_finger_string_based_runner(base64_image):
     # Convert the output image to base64
     base64_output = base64.b64encode(output_buffer.getvalue()).decode('utf-8')
 
-    update_process_status(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED", percentage_completion=100, base64_output=base64_output, message="Completed")
+    update_process_status(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED", percentage_completion=100, base64_output=base64_output, message="Completed")
 
 
 def update_process_status(input_url, model_name, percentage_completion=None, output_url=None, message=None):

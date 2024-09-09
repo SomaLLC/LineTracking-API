@@ -3,6 +3,7 @@ from django.views import View
 from asgiref.sync import async_to_sync, sync_to_async
 from threading import Thread
 import asyncio
+import hashlib
 
 from .utils import *
 
@@ -114,8 +115,11 @@ class RunCoverFingerStringBasedView(View):
         base64_image = request.POST.get('base64_image')
         if not base64_image:
             return JsonResponse({'error': 'No base64 image provided'}, status=400)
+
+        # Generate a hash of the base64_image
+        image_hash = hashlib.sha256(base64_image.encode()).hexdigest()[:10]
         
-        process_status, created = ProcessStatus.objects.get_or_create(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED")
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED")
         
         if created:
             thread = Thread(target=self.run_cover_finger_string_based_in_thread, args=(base64_image,))
@@ -130,7 +134,7 @@ class RunCoverFingerStringBasedView(View):
 
     def run_cover_finger_string_based_in_thread(self, base64_image):
         result_base64 = cover_finger_string_based_runner(base64_image)
-        process_status = ProcessStatus.objects.get(input_url="base64_input", model_name="COVER_FINGER_STRING_BASED")
+        process_status = ProcessStatus.objects.get(input_url=image_hash, model_name="COVER_FINGER_STRING_BASED")
         process_status.base64_output = result_base64
         process_status.save()
 
