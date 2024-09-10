@@ -102,7 +102,7 @@ def detect_cat_face(frame):
     # Make prediction
     prediction = catKerasModel.predict(img)
 
-    img_width, img_height = frame.shape[:2]
+    img_height, img_width = frame.shape[:2]
 
     # Extract and scale the predicted points
     points = []
