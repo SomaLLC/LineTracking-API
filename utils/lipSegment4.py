@@ -182,7 +182,8 @@ def process_video(human_video_path, cat_video_path, output_path):
     return output_url
 
 # Example usage:
-cat_video_url = 'https://drive.google.com/uc?export=download&id=1MW_zsdYGZP_yIE4Wrh3BSPc832gQ6o8q'
+#cat_video_url = 'https://drive.google.com/uc?export=download&id=1MW_zsdYGZP_yIE4Wrh3BSPc832gQ6o8q'
+cat_video_url = 'https://drive.google.com/uc?export=download&id=1Nc7NxkaCPNR0ZaIkUTenD9OXIlwx7ct8'
 human_video_url = 'https://drive.google.com/uc?export=download&id=1zPNI_dwRa53NfniDhQc3sGa0YYaY-kQj'
 cat_video_path = 'temp_cat_video.mp4'
 human_video_path = 'temp_human_video.mp4'
