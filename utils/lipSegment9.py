@@ -212,7 +212,7 @@ def process_video(human_video_path, cat_video_path, output_path):
                 resized_lips = cv2.resize(segmented_lips, (w * 8, mouth_h * 8))
                 
                 # Calculate the position to center the enlarged lips
-                start_x = max(0, x - w // 2 - resized_lips.shape[1] // 2)
+                start_x = max(0, x + w // 2 - resized_lips.shape[1] // 2)
                 start_y = max(0, mouth_y + mouth_h // 2 - resized_lips.shape[0] // 2)
                 end_x = min(cat_frame.shape[1], start_x + resized_lips.shape[1])
                 end_y = min(cat_frame.shape[0], start_y + resized_lips.shape[0])
