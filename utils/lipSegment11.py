@@ -9,6 +9,7 @@ import firebase_admin
 from firebase_admin import credentials, storage
 
 import tensorflow as tf
+from tensorflow import keras
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
