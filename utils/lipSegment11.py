@@ -100,7 +100,7 @@ def detect_cat_face(frame):
     img = np.expand_dims(img, axis=0)  # Add batch dimension
 
     # Make prediction
-    prediction = model.predict(img)
+    prediction = catKerasModel.predict(img)
 
     # Get original image dimensions
     original_img = cv2.imread(img_path)
