@@ -106,16 +106,13 @@ def detect_cat_face(frame):
 
     # Extract and scale the predicted points
     points = []
-    """for i in range(0, len(prediction[0]), 2):
+    for i in range(0, len(prediction[0]), 2):
         x = int(prediction[0][i] * img_width)
         y = int(prediction[0][i+1] * img_height)
         points.append((x, y))
 
     # Find bounding box
-    x_coords, y_coords = zip(*points)"""
-
-    x_coords = [int(x*img_width) for x in prediction[0][:9]]
-    y_coords = [int(y*img_height) for y in prediction[0][9:]]
+    x_coords, y_coords = zip(*points)
 
     left = min(x_coords)
     right = max(x_coords)
@@ -126,7 +123,7 @@ def detect_cat_face(frame):
     print("\n\n\n\n\n\n")
     print(left, top, right, bottom)
     print("\n\n\n\n\n\n")
-    return (left, top, max(1,right - left), max(1, bottom - top))
+    return (left, top, max(1,right - left), max(1, bottom - top), points)
 
 
 def detect_cat_nose(frame, face_rect):
@@ -218,8 +215,12 @@ def process_video(human_video_path, cat_video_path, output_path):
             print("\n\n\n\n\n\n")"""
 
             if cat_face is not None:
-                x, y, w, h = cat_face
+                x, y, w, h, points = cat_face
                 cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
+
+                for point in points:
+                    px, py = point
+                    cv2.circle(cat_frame, (int(px), int(py)), 2, (0, 0, 255), -1)  # Draw a small red circle for each point
             
             if cat_face is not None:
                 face_history.append(cat_face)
@@ -227,11 +228,11 @@ def process_video(human_video_path, cat_video_path, output_path):
             # Use the median of recent face detections to stabilize the bounding box
             if face_history:
                 median_face = np.median(face_history, axis=0).astype(int)
-                x, y, w, h = median_face
+                x, y, w, h, points = median_face
             elif last_cat_face is not None:
-                x, y, w, h = last_cat_face
+                x, y, w, h, points = last_cat_face
             else:
-                x, y, w, h = None, None, None, None
+                x, y, w, h, points = None, None, None, None, None
             
             if x is not None:
                 # Draw bounding box around cat's face
