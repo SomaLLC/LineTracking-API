@@ -80,8 +80,8 @@ def segment_lips_and_teeth(frame):
                 
                 return output_frame, hull, (x, y)
             else:
-                # If no face is detected, return a transparent frame and None for hull
-                return np.zeros((frame.shape[0], frame.shape[1], 4), dtype=np.uint8), None
+                # If no face is detected, return a transparent frame and None for hull and coordinates
+                return np.zeros((frame.shape[0], frame.shape[1], 4), dtype=np.uint8), None, None
 
 def detect_cat_face(frame):
     """
@@ -182,7 +182,7 @@ def process_video(human_video_path, cat_video_path, output_path):
             break
         
         # Process the human frame to get segmented lips
-        segmented_lips, hull = segment_lips_and_teeth(human_frame)
+        segmented_lips, hull, coords = segment_lips_and_teeth(human_frame)
         
         if hull is not None:
             # Detect cat's face
