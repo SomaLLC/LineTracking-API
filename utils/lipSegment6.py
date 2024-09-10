@@ -118,8 +118,7 @@ def process_video(human_video_path, cat_video_path, output_path):
     recent_faces = deque(maxlen=30)  # Store last 30 frames (1 second at 30 fps)
     
     # Load the Haar cascade for cat face detection
-    cascade_file = "haarcascade_frontalcatface_extended.xml"
-    face_cascade = cv2.CascadeClassifier(cascade_file)
+    cat_face_cascade_frontal = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalcatface_extended.xml')
 
     # Pre-process cat video to detect faces
     print("Pre-processing cat video to detect faces...")
@@ -129,7 +128,7 @@ def process_video(human_video_path, cat_video_path, output_path):
         if not ret:
             break
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cat_faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30))
+        cat_faces = cat_face_cascade_frontal.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30))
         face_detections.extend(cat_faces)
     
     # Reset video capture to the beginning
