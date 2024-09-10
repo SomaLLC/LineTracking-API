@@ -126,9 +126,6 @@ def process_video(human_video_path, cat_video_path, output_path):
     last_cat_face = None  # Store the last detected cat face
     face_history = deque(maxlen=30)  # Store last 30 face detections
     
-    # Create a CUDA stream
-    stream = cv2.cuda_Stream()
-    
     while human_cap.isOpened() and cat_cap.isOpened():
         human_ret, human_frame = human_cap.read()
         cat_ret, cat_frame = cat_cap.read()
@@ -156,19 +153,8 @@ def process_video(human_video_path, cat_video_path, output_path):
                 x, y, w, h = None, None, None, None
             
             if x is not None:
-                # Convert to GPU mat
-                gpu_cat_frame = cv2.cuda_GpuMat()
-                gpu_cat_frame.upload(cat_frame)
-                
-                # Draw rectangle on GPU
-                cv2.cuda.rectangle(gpu_cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2, stream=stream)
-                
-                # Resize on GPU
-                gpu_resized_lips = cv2.cuda.resize(cv2.cuda_GpuMat(segmented_lips), (w * 5, mouth_h * 5), stream=stream)
-                
-                # Download result back to CPU
-                resized_lips = gpu_resized_lips.download()
-                cat_frame = gpu_cat_frame.download()
+                # Draw bounding box around cat's face
+                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
