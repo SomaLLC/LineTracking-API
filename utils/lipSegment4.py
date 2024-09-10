@@ -55,7 +55,7 @@ def segment_lips_and_teeth(frame):
             # Find the outermost points to create a single polygon
             hull = cv2.convexHull(np.array(mouth_points))
             
-            # Fill the single polygon completely
+            # Fill the polygon completely
             cv2.fillPoly(mask, [hull], 255)
             
             # Apply Gaussian blur to soften the mask edges
@@ -73,12 +73,12 @@ def segment_lips_and_teeth(frame):
             # If no face is detected, return a transparent frame and None for hull
             return np.zeros((frame.shape[0], frame.shape[1], 4), dtype=np.uint8), None
 
-def detect_cat_mouth(frame):
+def detect_cat_face(frame):
     """
-    Detect the cat's mouth in the frame.
+    Detect the cat's face in the frame.
     
     :param frame: Input frame (BGR format)
-    :return: Bounding box of the cat's mouth (x, y, w, h)
+    :return: Bounding box of the cat's face (x, y, w, h)
     """
     # Load a pre-trained Haar cascade for cat faces
     cat_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalcatface_extended.xml')
@@ -91,13 +91,7 @@ def detect_cat_mouth(frame):
     
     if len(cat_faces) > 0:
         # Assume the largest detected face is the correct one
-        x, y, w, h = max(cat_faces, key=lambda rect: rect[2] * rect[3])
-        
-        # Estimate mouth position (lower third of the face)
-        mouth_y = y + int(2*h/3)
-        mouth_h = int(h/3)
-        
-        return (x, mouth_y, w, mouth_h)
+        return max(cat_faces, key=lambda rect: rect[2] * rect[3])
     else:
         return None
 
@@ -133,28 +127,35 @@ def process_video(human_video_path, cat_video_path, output_path):
         segmented_lips, hull = segment_lips_and_teeth(human_frame)
         
         if hull is not None:
-            # Detect cat's mouth
-            cat_mouth = detect_cat_mouth(cat_frame)
+            # Detect cat's face
+            cat_face = detect_cat_face(cat_frame)
             
-            if cat_mouth is not None:
-                x, y, w, h = cat_mouth
+            if cat_face is not None:
+                x, y, w, h = cat_face
                 
-                # Calculate scaling factors
+                # Draw bounding box around cat's face
+                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                
+                # Estimate cat's mouth region (lower third of the face)
+                mouth_y = y + int(2*h/3)
+                mouth_h = int(h/3)
+                
+                # Adjust the size of the lip mask to cover the cat's mouth region
                 human_mouth_w = np.max(hull[:, 0, 0]) - np.min(hull[:, 0, 0])
                 human_mouth_h = np.max(hull[:, 0, 1]) - np.min(hull[:, 0, 1])
                 scale_x = w / human_mouth_w
-                scale_y = h / human_mouth_h
+                scale_y = mouth_h / human_mouth_h
                 
                 # Resize segmented lips to match cat's mouth size
-                resized_lips = cv2.resize(segmented_lips, (w, h))
+                resized_lips = cv2.resize(segmented_lips, (w, mouth_h))
                 
                 # Create a mask for the resized lips
                 mask = resized_lips[:, :, 3] / 255.0
                 
                 # Overlay resized lips on the cat frame
                 for c in range(0, 3):
-                    cat_frame[y:y+h, x:x+w, c] = (1 - mask) * cat_frame[y:y+h, x:x+w, c] + \
-                                                 mask * resized_lips[:, :, c]
+                    cat_frame[mouth_y:mouth_y+mouth_h, x:x+w, c] = (1 - mask) * cat_frame[mouth_y:mouth_y+mouth_h, x:x+w, c] + \
+                                                                   mask * resized_lips[:, :, c]
         
         # Write the frame
         out.write(cat_frame)
