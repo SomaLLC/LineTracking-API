@@ -222,17 +222,16 @@ def process_video(human_video_path, cat_video_path, output_path):
                     px, py = point
                     cv2.circle(cat_frame, (int(px), int(py)), 2, (0, 0, 255), -1)  # Draw a small red circle for each point
             
-            if cat_face is not None:
-                face_history.append(cat_face)
+                face_history.append((x,y,w,h))
             
             # Use the median of recent face detections to stabilize the bounding box
             if face_history:
                 median_face = np.median(face_history, axis=0).astype(int)
-                x, y, w, h, points = median_face
+                x, y, w, h = median_face
             elif last_cat_face is not None:
-                x, y, w, h, points = last_cat_face
+                x, y, w, h = last_cat_face
             else:
-                x, y, w, h, points = None, None, None, None, None
+                x, y, w, h = None, None, None, None, None
             
             if x is not None:
                 # Draw bounding box around cat's face
