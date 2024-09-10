@@ -102,6 +102,48 @@ def detect_cat_face(frame):
     else:
         return None
 
+def detect_cat_nose(frame, face_rect):
+    """
+    Detect the cat's nose within the face region using contour detection.
+    
+    :param frame: Input frame (BGR format)
+    :param face_rect: Bounding box of the cat's face (x, y, w, h)
+    :return: Coordinates of the cat's nose (x, y)
+    """
+    x, y, w, h = face_rect
+    face_region = frame[y:y+h, x:x+w]
+    
+    # Convert to grayscale and apply threshold
+    gray = cv2.cvtColor(face_region, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY_INV)
+    
+    # Find contours
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    for contour in contours:
+        # Approximate the contour to a polygon
+        epsilon = 0.04 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+        
+        # Check if the polygon has 3 vertices (triangle)
+        if len(approx) == 3:
+            # Calculate the orientation of the triangle
+            orientation = np.arctan2(approx[1][0][1] - approx[0][0][1], 
+                                     approx[1][0][0] - approx[0][0][0])
+            orientation = np.degrees(orientation)
+            
+            # Check if the triangle is pointing downwards (orientation between 45 and 135 degrees)
+            if 45 < orientation < 135:
+                # Calculate centroid of the triangle
+                M = cv2.moments(approx)
+                if M["m00"] != 0:
+                    cx = int(M["m10"] / M["m00"])
+                    cy = int(M["m01"] / M["m00"])
+                    return (x + cx, y + cy)
+    
+    # If no suitable nose is found, return the center of the upper half of the face
+    return (x + w // 2, y + h // 3)
+
 def process_video(human_video_path, cat_video_path, output_path):
     """
     Process videos to segment lips and teeth from the human video,
@@ -153,8 +195,22 @@ def process_video(human_video_path, cat_video_path, output_path):
                 x, y, w, h = None, None, None, None
             
             if x is not None:
-                # Draw bounding box around cat's face
-                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                # Detect cat's nose
+                nose_x, nose_y = detect_cat_nose(cat_frame, (x, y, w, h))
+                
+                # Draw red bounding box below the nose
+                nose_box_w = w // 3
+                nose_box_h = h // 6
+                nose_box_x = nose_x - nose_box_w // 2
+                nose_box_y = nose_y
+                cv2.rectangle(cat_frame, (nose_box_x, nose_box_y), (nose_box_x + nose_box_w, nose_box_y + nose_box_h), (0, 0, 255), 2)
+                
+                # Draw blue bounding box for the mouth
+                mouth_box_w = w // 2
+                mouth_box_h = h // 4
+                mouth_box_x = nose_x - mouth_box_w // 2
+                mouth_box_y = nose_y + nose_box_h
+                cv2.rectangle(cat_frame, (mouth_box_x, mouth_box_y), (mouth_box_x + mouth_box_w, mouth_box_y + mouth_box_h), (255, 0, 0), 2)
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
