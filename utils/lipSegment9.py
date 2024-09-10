@@ -195,7 +195,7 @@ def process_video(human_video_path, cat_video_path, output_path):
                 x, y, w, h = None, None, None, None
             
             if x is not None:
-                # Detect cat's nose
+                """# Detect cat's nose
                 nose_x, nose_y = detect_cat_nose(cat_frame, (x, y, w, h))
                 
                 # Draw red bounding box below the nose
@@ -210,7 +210,7 @@ def process_video(human_video_path, cat_video_path, output_path):
                 mouth_box_h = h // 4
                 mouth_box_x = nose_x - mouth_box_w // 2
                 mouth_box_y = nose_y + nose_box_h
-                cv2.rectangle(cat_frame, (mouth_box_x, mouth_box_y), (mouth_box_x + mouth_box_w, mouth_box_y + mouth_box_h), (255, 0, 0), 2)
+                cv2.rectangle(cat_frame, (mouth_box_x, mouth_box_y), (mouth_box_x + mouth_box_w, mouth_box_y + mouth_box_h), (255, 0, 0), 2)"""
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
@@ -222,8 +222,8 @@ def process_video(human_video_path, cat_video_path, output_path):
                 scale_x = w / human_mouth_w
                 scale_y = mouth_h / human_mouth_h
                 
-                # Resize segmented lips to match cat's mouth size and make it 5x larger
-                resized_lips = cv2.resize(segmented_lips, (w * 5, mouth_h * 5))
+                # Resize segmented lips to match cat's mouth size and make it 8x larger
+                resized_lips = cv2.resize(segmented_lips, (w * 8, mouth_h * 8))
                 
                 # Calculate the position to center the enlarged lips
                 start_x = max(0, x - w // 2 - resized_lips.shape[1] // 2)
