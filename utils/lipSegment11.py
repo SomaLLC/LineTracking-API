@@ -105,8 +105,8 @@ def detect_cat_face(frame):
     # Extract and scale the predicted points
     points = []
     for i in range(0, len(prediction[0]), 2):
-        x = int((prediction[0][i] * 224 * original_width) / 224)
-        y = int((prediction[0][i+1] * 224 * original_height) / 224)
+        x = int((prediction[0][i] * original_width))
+        y = int((prediction[0][i+1] * original_height))
         points.append((x, y))
 
     # Find bounding box
@@ -214,7 +214,7 @@ def process_video(human_video_path, cat_video_path, output_path):
 
             if cat_face is not None:
                 x, y, w, h, points = cat_face
-                #cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
+                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
 
                 for point in points:
                     px, py = point
@@ -233,7 +233,7 @@ def process_video(human_video_path, cat_video_path, output_path):
             
             if x is not None:
                 # Draw bounding box around cat's face
-                #cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
@@ -260,11 +260,10 @@ def process_video(human_video_path, cat_video_path, output_path):
                 # Create a mask for the resized lips
                 mask = resized_lips[:, :, 3] / 255.0
                 
-                """
                 # Overlay resized lips on the cat frame
                 for c in range(0, 3):
                     cat_frame[start_y:end_y, start_x:end_x, c] = (1 - mask) * cat_frame[start_y:end_y, start_x:end_x, c] + \
-                                                                   mask * resized_lips[:, :, c]"""
+                                                                   mask * resized_lips[:, :, c]
         
         # Write the frame
         out.write(cat_frame)
@@ -298,8 +297,8 @@ def process_video(human_video_path, cat_video_path, output_path):
 
     return output_url
 
-#cat_video_url = 'https://drive.google.com/uc?export=download&id=1qBEZixvQgECAN3JjYcLAoCTlRbGnSPXJ'
-cat_video_url = 'https://drive.google.com/uc?export=download&id=1_l5mowDH5wXWB2pTSBriujpxM2CjrW2s'
+cat_video_url = 'https://drive.google.com/uc?export=download&id=1qBEZixvQgECAN3JjYcLAoCTlRbGnSPXJ'
+#cat_video_url = 'https://drive.google.com/uc?export=download&id=1_l5mowDH5wXWB2pTSBriujpxM2CjrW2s'
 #cat_video_url = 'https://drive.google.com/uc?export=download&id=1-rN9db7xeYKDDEK8PUDZGiucF3EYfq5j'
 human_video_url = 'https://drive.google.com/uc?export=download&id=1zPNI_dwRa53NfniDhQc3sGa0YYaY-kQj'
 cat_video_path = 'temp_cat_video.mp4'
