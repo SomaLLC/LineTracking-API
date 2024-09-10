@@ -118,7 +118,7 @@ def detect_cat_face(frame):
     top = min(y_coords)
     bottom = max(y_coords)
 
-    return (left, top, right - left, top - bottom)
+    return (left, top, min(1,right - left), min(1, bottom - top))
 
 
 def detect_cat_nose(frame, face_rect):
