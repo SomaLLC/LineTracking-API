@@ -50,7 +50,12 @@ def segment_lips_and_teeth(frame):
             
             # Create a mask for the mouth region
             mask = np.zeros((h, w), dtype=np.uint8)
-            cv2.fillConvexPoly(mask, np.array(mouth_points), 255)
+            
+            # Find the outermost points to create a single polygon
+            hull = cv2.convexHull(np.array(mouth_points))
+            
+            # Fill the single polygon completely
+            cv2.fillPoly(mask, [hull], 255)
             
             # Apply Gaussian blur to soften the mask edges
             mask = cv2.GaussianBlur(mask, (5, 5), 0)
