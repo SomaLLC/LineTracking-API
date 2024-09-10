@@ -146,15 +146,24 @@ def process_video(human_video_path, cat_video_path, output_path):
                 scale_x = w / human_mouth_w
                 scale_y = mouth_h / human_mouth_h
                 
-                # Resize segmented lips to match cat's mouth size
-                resized_lips = cv2.resize(segmented_lips, (w, mouth_h))
+                # Resize segmented lips to match cat's mouth size and make it 5x larger
+                resized_lips = cv2.resize(segmented_lips, (w * 5, mouth_h * 5))
+                
+                # Calculate the position to center the enlarged lips
+                start_x = max(0, x + w // 2 - resized_lips.shape[1] // 2)
+                start_y = max(0, mouth_y + mouth_h // 2 - resized_lips.shape[0] // 2)
+                end_x = min(cat_frame.shape[1], start_x + resized_lips.shape[1])
+                end_y = min(cat_frame.shape[0], start_y + resized_lips.shape[0])
+                
+                # Adjust resized_lips if it goes out of frame
+                resized_lips = resized_lips[:end_y-start_y, :end_x-start_x]
                 
                 # Create a mask for the resized lips
                 mask = resized_lips[:, :, 3] / 255.0
                 
                 # Overlay resized lips on the cat frame
                 for c in range(0, 3):
-                    cat_frame[mouth_y:mouth_y+mouth_h, x:x+w, c] = (1 - mask) * cat_frame[mouth_y:mouth_y+mouth_h, x:x+w, c] + \
+                    cat_frame[start_y:end_y, start_x:end_x, c] = (1 - mask) * cat_frame[start_y:end_y, start_x:end_x, c] + \
                                                                    mask * resized_lips[:, :, c]
         
         # Write the frame
