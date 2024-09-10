@@ -75,19 +75,24 @@ def segment_lips_and_teeth(frame):
 
 def detect_cat_face(frame):
     """
-    Detect the cat's face in the frame.
+    Detect the cat's face in the frame, including side views.
     
     :param frame: Input frame (BGR format)
     :return: Bounding box of the cat's face (x, y, w, h)
     """
-    # Load a pre-trained Haar cascade for cat faces
-    cat_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalcatface_extended.xml')
+    # Load pre-trained Haar cascades for cat faces (frontal and profile)
+    cat_face_cascade_frontal = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalcatface_extended.xml')
+    cat_face_cascade_profile = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profilecatface.xml')
     
     # Convert frame to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
-    # Detect cat faces
-    cat_faces = cat_face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    # Detect cat faces (frontal and profile)
+    cat_faces_frontal = cat_face_cascade_frontal.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    cat_faces_profile = cat_face_cascade_profile.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    
+    # Combine detected faces
+    cat_faces = list(cat_faces_frontal) + list(cat_faces_profile)
     
     if len(cat_faces) > 0:
         # Assume the largest detected face is the correct one
