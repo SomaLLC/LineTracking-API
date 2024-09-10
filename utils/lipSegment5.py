@@ -14,6 +14,10 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
 
+cascade_file = "cat.xml"
+
+face_cascade = cv2.CascadeClassifier(cascade_file)
+
 def segment_lips_and_teeth(frame):
     """
     Segment lips and teeth from a frame and make the rest of the frame transparent.
@@ -75,28 +79,21 @@ def segment_lips_and_teeth(frame):
 
 def detect_cat_face(frame):
     """
-    Detect the cat's face in the frame, including side views, using MediaPipe Face Detection.
+    Detect the cat's face in the frame using Haar cascade classifier.
     
     :param frame: Input frame (BGR format)
     :return: Bounding box of the cat's face (x, y, w, h)
     """
-    mp_face_detection = mp.solutions.face_detection
+    # Convert to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
-    with mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5) as face_detection:
-        # Convert the BGR image to RGB
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
-        # Process the frame and find facial landmarks
-        results = face_detection.process(rgb_frame)
-        
-        if results.detections:
-            # Get the bounding box of the first detected face
-            detection = results.detections[0]
-            bboxC = detection.location_data.relative_bounding_box
-            ih, iw, _ = frame.shape
-            x, y, w, h = int(bboxC.xmin * iw), int(bboxC.ymin * ih), \
-                         int(bboxC.width * iw), int(bboxC.height * ih)
-            return (x, y, w, h)
+    # Detect cat faces
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30))
+    
+    if len(faces) > 0:
+        # Find the largest face
+        largest_face = max(faces, key=lambda f: f[2] * f[3])
+        return largest_face
     
     return None
 
