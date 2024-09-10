@@ -53,14 +53,20 @@ def segment_lips_and_teeth(frame):
                 h, w = frame.shape[:2]
                 mouth_points = [(int(face_landmarks.landmark[i].x * w), int(face_landmarks.landmark[i].y * h)) for i in mouth_landmarks]
                 
-                # Create a mask for the mouth region
-                mask = np.zeros((h, w), dtype=np.uint8)
-                
                 # Find the outermost points to create a single polygon
                 hull = cv2.convexHull(np.array(mouth_points))
                 
+                # Get the bounding rectangle of the hull
+                x, y, w, h = cv2.boundingRect(hull)
+                
+                # Create a mask for the mouth region, sized to the bounding rectangle
+                mask = np.zeros((h, w), dtype=np.uint8)
+                
+                # Adjust hull points to the new coordinate system
+                hull_adjusted = hull - np.array([x, y])
+                
                 # Fill the polygon completely
-                cv2.fillPoly(mask, [hull], 255)
+                cv2.fillPoly(mask, [hull_adjusted], 255)
                 
                 # Apply Gaussian blur to soften the mask edges
                 mask = cv2.GaussianBlur(mask, (5, 5), 0)
@@ -69,10 +75,10 @@ def segment_lips_and_teeth(frame):
                 output_frame = np.zeros((h, w, 4), dtype=np.uint8)
                 
                 # Apply the mask to the original frame and combine with the transparent background
-                output_frame[:,:,0:3] = cv2.bitwise_and(frame, frame, mask=mask)
+                output_frame[:,:,0:3] = cv2.bitwise_and(frame[y:y+h, x:x+w], frame[y:y+h, x:x+w], mask=mask)
                 output_frame[:,:,3] = mask
                 
-                return output_frame, hull
+                return output_frame, hull, (x, y)
             else:
                 # If no face is detected, return a transparent frame and None for hull
                 return np.zeros((frame.shape[0], frame.shape[1], 4), dtype=np.uint8), None
