@@ -171,6 +171,8 @@ def process_video(human_video_path, cat_video_path, output_path):
     # Create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+    
     
     last_cat_face = None  # Store the last detected cat face
     face_history = deque(maxlen=30)  # Store last 30 face detections
@@ -189,6 +191,10 @@ def process_video(human_video_path, cat_video_path, output_path):
         if hull is not None:
             # Detect cat's face
             cat_face = detect_cat_face(cat_frame)
+            
+            if cat_face is not None:
+                x, y, w, h = cat_face
+                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
             
             if cat_face is not None:
                 face_history.append(cat_face)
