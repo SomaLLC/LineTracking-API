@@ -216,7 +216,7 @@ def process_video(human_video_path, cat_video_path, output_path):
 
             if cat_face is not None:
                 x, y, w, h, points = cat_face
-                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
+                #cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
 
                 for point in points:
                     px, py = point
@@ -235,7 +235,7 @@ def process_video(human_video_path, cat_video_path, output_path):
             
             if x is not None:
                 # Draw bounding box around cat's face
-                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                #cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
@@ -262,10 +262,11 @@ def process_video(human_video_path, cat_video_path, output_path):
                 # Create a mask for the resized lips
                 mask = resized_lips[:, :, 3] / 255.0
                 
+                """
                 # Overlay resized lips on the cat frame
                 for c in range(0, 3):
                     cat_frame[start_y:end_y, start_x:end_x, c] = (1 - mask) * cat_frame[start_y:end_y, start_x:end_x, c] + \
-                                                                   mask * resized_lips[:, :, c]
+                                                                   mask * resized_lips[:, :, c]"""
         
         # Write the frame
         out.write(cat_frame)
