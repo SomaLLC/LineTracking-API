@@ -205,6 +205,10 @@ def process_video(human_video_path, cat_video_path, output_path):
             # Detect cat's face
             cat_face = detect_cat_face(cat_frame)
 
+            print("\n\n\n\n\n\n")
+            print(cat_face)
+            print("\n\n\n\n\n\n")
+
             if cat_face is not None:
                 x, y, w, h = cat_face
                 cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
