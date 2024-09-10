@@ -104,10 +104,12 @@ def detect_cat_face(frame):
 
     img_height, img_width = frame.shape[:2]
 
+    aspect_ratio = img_width / img_height
+
     # Extract and scale the predicted points
     points = []
     for i in range(0, len(prediction[0]), 2):
-        x = int(prediction[0][i] * img_width)
+        x = int(prediction[0][i] * img_width * aspect_ratio)
         y = int(prediction[0][i+1] * img_height)
         points.append((x, y))
 
