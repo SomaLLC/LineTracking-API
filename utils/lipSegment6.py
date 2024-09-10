@@ -117,22 +117,40 @@ def process_video(human_video_path, cat_video_path, output_path):
     # Initialize deque to store recent cat face detections
     recent_faces = deque(maxlen=30)  # Store last 30 frames (1 second at 30 fps)
     
+    # Load the Haar cascade for cat face detection
+    cascade_file = "haarcascade_frontalcatface_extended.xml"
+    face_cascade = cv2.CascadeClassifier(cascade_file)
+
     # Pre-process cat video to detect faces
     print("Pre-processing cat video to detect faces...")
+    face_detections = []
     while cat_cap.isOpened():
         ret, frame = cat_cap.read()
         if not ret:
             break
-        cat_faces = detect_cat_face(frame)
-        if cat_faces:
-            recent_faces.extend(cat_faces)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        cat_faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30))
+        face_detections.extend(cat_faces)
     
     # Reset video capture to the beginning
     cat_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
     
     # Calculate the most common cat face area
-    if recent_faces:
-        common_face = np.median(recent_faces, axis=0).astype(int)
+    if face_detections:
+        face_detections = np.array(face_detections)
+        
+        # Use a histogram approach to find the most common face area
+        x_hist = np.histogram(face_detections[:, 0], bins=50)
+        y_hist = np.histogram(face_detections[:, 1], bins=50)
+        w_hist = np.histogram(face_detections[:, 2], bins=20)
+        h_hist = np.histogram(face_detections[:, 3], bins=20)
+        
+        common_x = x_hist[1][np.argmax(x_hist[0])]
+        common_y = y_hist[1][np.argmax(y_hist[0])]
+        common_w = w_hist[1][np.argmax(w_hist[0])]
+        common_h = h_hist[1][np.argmax(h_hist[0])]
+        
+        common_face = [int(common_x), int(common_y), int(common_w), int(common_h)]
     else:
         print("No cat face detected in the video.")
         return None
