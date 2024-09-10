@@ -118,11 +118,13 @@ def detect_cat_face_using_cv2(frame):
     # Detect cat faces
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=10, minSize=(75, 75))
     
-    # Find the largest face if any faces are detected
+    """# Find the largest face if any faces are detected
     if len(faces) > 0:
         return max(faces, key=lambda f: f[2] * f[3])  # Return the face with the largest area
     else:
-        return None
+        return None"""
+
+    return faces
 
 
 def detect_cat_nose(frame, face_rect):
@@ -209,15 +211,14 @@ def process_video(human_video_path, cat_video_path, output_path):
             # Detect cat's face
             cat_face = detect_cat_face(cat_frame)
 
-            cat_face_dos = detect_cat_face_using_cv2(cat_frame)
+            cat_faces_dos = detect_cat_face_using_cv2(cat_frame)
 
-            if cat_face_dos is not None:
+            for cat_face_dos in cat_faces_dos:
                 x, y, w, h = cat_face_dos
-                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (255, 0, 0), 2)  # Red bounding box
+                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (255, 0, 0), 2)  # blue bounding box
 
-            if cat_face_dos is not None:
                 face_history.append(cat_face_dos)
-                
+
             if cat_face is not None:
                 x, y, w, h = cat_face
                 cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
