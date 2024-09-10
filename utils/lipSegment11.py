@@ -118,7 +118,7 @@ def detect_cat_face(frame):
     top = min(y_coords)
     bottom = max(y_coords)
 
-    return (left, top, min(1,right - left), min(1, bottom - top))
+    return (left, top, max(1,right - left), max(1, bottom - top))
 
 
 def detect_cat_nose(frame, face_rect):
@@ -227,7 +227,7 @@ def process_video(human_video_path, cat_video_path, output_path):
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
-                mouth_h = int(h/3)
+                mouth_h = max(1,int(h/3))
                 
                 # Adjust the size of the lip mask to cover the cat's mouth region
                 human_mouth_w = np.max(hull[:, 0, 0]) - np.min(hull[:, 0, 0])
