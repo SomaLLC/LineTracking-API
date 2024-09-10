@@ -106,13 +106,17 @@ def detect_cat_face(frame):
 
     # Extract and scale the predicted points
     points = []
-    for i in range(0, len(prediction[0]), 2):
+    """for i in range(0, len(prediction[0]), 2):
         x = int(prediction[0][i] * img_width)
         y = int(prediction[0][i+1] * img_height)
         points.append((x, y))
 
     # Find bounding box
-    x_coords, y_coords = zip(*points)
+    x_coords, y_coords = zip(*points)"""
+
+    x_coords = prediction[0][:9]
+    y_coords = prediction[0][9:]
+    
     left = min(x_coords)
     right = max(x_coords)
     top = min(y_coords)
