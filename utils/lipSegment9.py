@@ -166,6 +166,7 @@ def process_video(human_video_path, cat_video_path, output_path):
     width = int(cat_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cat_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = int(cat_cap.get(cv2.CAP_PROP_FPS))
+    total_frames = int(cat_cap.get(cv2.CAP_PROP_FRAME_COUNT))
     
     # Create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -174,6 +175,7 @@ def process_video(human_video_path, cat_video_path, output_path):
     last_cat_face = None  # Store the last detected cat face
     face_history = deque(maxlen=30)  # Store last 30 face detections
     
+    frame_count = 0
     while human_cap.isOpened() and cat_cap.isOpened():
         human_ret, human_frame = human_cap.read()
         cat_ret, cat_frame = cat_cap.read()
@@ -236,6 +238,13 @@ def process_video(human_video_path, cat_video_path, output_path):
         
         # Write the frame
         out.write(cat_frame)
+        
+        # Update frame count and print progress
+        frame_count += 1
+        progress = (frame_count / total_frames) * 100
+        print(f"\rProgress: {progress:.2f}%", end="")
+    
+    print("\nProcessing complete!")
     
     # Release everything
     human_cap.release()
