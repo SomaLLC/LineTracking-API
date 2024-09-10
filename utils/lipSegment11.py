@@ -192,7 +192,7 @@ def process_video(human_video_path, cat_video_path, output_path):
     
     
     last_cat_face = None  # Store the last detected cat face
-    face_history = deque(maxlen=30)  # Store last 30 face detections
+    face_history = deque(maxlen=3)  # Store last 3 face detections
     
     frame_count = 0
     while human_cap.isOpened() and cat_cap.isOpened():
