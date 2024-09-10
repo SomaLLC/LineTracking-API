@@ -93,22 +93,20 @@ def detect_cat_face(frame):
     :param frame: Input frame (BGR format)
     :return: Bounding box of the cat's face (x, y, w, h)
     """
-
     img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #img = cv2.resize(img, (224, 224))  # Adjust size if needed
-    #img = img / 255.0  # Normalize pixel values
-    img = np.expand_dims(img, axis=0)  # Add batch dimension
+    original_height, original_width = frame.shape[:2]
+    img_resized = cv2.resize(img, (224, 224))  # Resize for prediction
+    img_normalized = img_resized / 255.0  # Normalize pixel values
+    img_batch = np.expand_dims(img_normalized, axis=0)  # Add batch dimension
 
     # Make prediction
-    prediction = catKerasModel.predict(img)
-
-    img_height, img_width = frame.shape[:2]
+    prediction = catKerasModel.predict(img_batch)
 
     # Extract and scale the predicted points
     points = []
     for i in range(0, len(prediction[0]), 2):
-        x = int(prediction[0][i] * img_width)
-        y = int(prediction[0][i+1] * img_height)
+        x = int((prediction[0][i] * 224 * original_width) / 224)
+        y = int((prediction[0][i+1] * 224 * original_height) / 224)
         points.append((x, y))
 
     # Find bounding box
