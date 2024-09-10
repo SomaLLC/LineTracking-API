@@ -35,6 +35,7 @@ if prediction[0][0] > 0.5:
 else:
     result = "No cat detected"
 
+print("Pred: " + str(prediction))
 print(result)
 
 # Draw the result on the image
