@@ -118,6 +118,10 @@ def detect_cat_face(frame):
     top = min(y_coords)
     bottom = max(y_coords)
 
+
+    print("\n\n\n\n\n\n")
+    print(left, top, right, bottom)
+    print("\n\n\n\n\n\n")
     return (left, top, max(1,right - left), max(1, bottom - top))
 
 
@@ -205,9 +209,9 @@ def process_video(human_video_path, cat_video_path, output_path):
             # Detect cat's face
             cat_face = detect_cat_face(cat_frame)
 
-            print("\n\n\n\n\n\n")
+            """print("\n\n\n\n\n\n")
             print(cat_face)
-            print("\n\n\n\n\n\n")
+            print("\n\n\n\n\n\n")"""
 
             if cat_face is not None:
                 x, y, w, h = cat_face
