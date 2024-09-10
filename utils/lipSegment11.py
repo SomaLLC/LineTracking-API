@@ -114,8 +114,8 @@ def detect_cat_face(frame):
     # Find bounding box
     x_coords, y_coords = zip(*points)"""
 
-    x_coords = [x*img_width for x in prediction[0][:9]]
-    y_coords = [y*img_height for y in prediction[0][9:]]
+    x_coords = [int(x*img_width) for x in prediction[0][:9]]
+    y_coords = [int(y*img_height) for y in prediction[0][9:]]
 
     left = min(x_coords)
     right = max(x_coords)
