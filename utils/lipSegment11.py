@@ -95,8 +95,8 @@ def detect_cat_face(frame):
     """
 
     img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, (224, 224))  # Adjust size if needed
-    img = img / 255.0  # Normalize pixel values
+    #img = cv2.resize(img, (224, 224))  # Adjust size if needed
+    #img = img / 255.0  # Normalize pixel values
     img = np.expand_dims(img, axis=0)  # Add batch dimension
 
     # Make prediction
@@ -104,12 +104,10 @@ def detect_cat_face(frame):
 
     img_height, img_width = frame.shape[:2]
 
-    aspect_ratio = img_width / img_height
-
     # Extract and scale the predicted points
     points = []
     for i in range(0, len(prediction[0]), 2):
-        x = int(prediction[0][i] * img_width * aspect_ratio)
+        x = int(prediction[0][i] * img_width)
         y = int(prediction[0][i+1] * img_height)
         points.append((x, y))
 
