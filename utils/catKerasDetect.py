@@ -27,8 +27,6 @@ img = np.expand_dims(img, axis=0)  # Add batch dimension
 
 # Make prediction
 prediction = model.predict(img)
-# Process the prediction
-print("Pred: " + str(prediction))
 
 # Get original image dimensions
 original_img = cv2.imread(img_path)
@@ -41,10 +39,6 @@ for i in range(0, len(prediction[0]), 2):
     y = int(prediction[0][i+1] * img_height)
     points.append((x, y))
 
-# Draw points on the image
-for point in points:
-    cv2.circle(original_img, point, 5, (0, 255, 0), -1)
-
 # Find bounding box
 x_coords, y_coords = zip(*points)
 left = min(x_coords)
@@ -55,10 +49,7 @@ bottom = max(y_coords)
 # Draw bounding box
 cv2.rectangle(original_img, (left, top), (right, bottom), (255, 0, 0), 2)
 
-# Add text to indicate cat detection
-cv2.putText(original_img, "Cat detected", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-print("Points and bounding box drawn on the image")
+print("Bounding box drawn on the image")
 
 # Save the image to a temporary file
 with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
