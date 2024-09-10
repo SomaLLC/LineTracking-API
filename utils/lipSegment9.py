@@ -208,17 +208,17 @@ def process_video(human_video_path, cat_video_path, output_path):
                 scale_x = w / human_mouth_w
                 scale_y = mouth_h / human_mouth_h
                 
-                # Resize segmented lips to match cat's mouth size and make it 8x larger
-                resized_lips = cv2.resize(segmented_lips, (w * 8, mouth_h * 8))
+                # Resize segmented lips to match cat's mouth size
+                resized_lips = cv2.resize(segmented_lips, (w, mouth_h))
                 
-                # Calculate the position to center the enlarged lips
-                start_x = max(0, x + w // 2 - resized_lips.shape[1] // 2)
-                start_y = max(0, mouth_y + mouth_h // 2 - resized_lips.shape[0] // 2)
-                end_x = min(cat_frame.shape[1], start_x + resized_lips.shape[1])
-                end_y = min(cat_frame.shape[0], start_y + resized_lips.shape[0])
+                # Calculate the position to place the lips within the cat's face bounding box
+                start_x = x
+                start_y = mouth_y
+                end_x = x + w
+                end_y = mouth_y + mouth_h
                 
-                # Adjust resized_lips if it goes out of frame
-                resized_lips = resized_lips[:end_y-start_y, :end_x-start_x]
+                # Ensure the dimensions match
+                resized_lips = cv2.resize(resized_lips, (end_x - start_x, end_y - start_y))
                 
                 # Create a mask for the resized lips
                 mask = resized_lips[:, :, 3] / 255.0
@@ -255,7 +255,7 @@ def process_video(human_video_path, cat_video_path, output_path):
 
 # Example usage:
 #cat_video_url = 'https://drive.google.com/uc?export=download&id=1MW_zsdYGZP_yIE4Wrh3BSPc832gQ6o8q'
-cat_video_url = 'https://drive.google.com/uc?export=download&id=1Nc7NxkaCPNR0ZaIkUTenD9OXIlwx7ct8'
+cat_video_url = 'https://drive.google.com/uc?export=download&id=1_l5mowDH5wXWB2pTSBriujpxM2CjrW2s'
 human_video_url = 'https://drive.google.com/uc?export=download&id=1zPNI_dwRa53NfniDhQc3sGa0YYaY-kQj'
 cat_video_path = 'temp_cat_video.mp4'
 human_video_path = 'temp_human_video.mp4'
