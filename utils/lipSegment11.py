@@ -239,17 +239,18 @@ def process_video(human_video_path, cat_video_path, output_path):
                 mouth_y = y + int(2*h/3)
                 mouth_h = max(1,int(h/3))
                 
-                # Adjust the size of the lip mask to cover the cat's mouth region
+                # Adjust the size of the lip mask to cover 70% of the cat's mouth region width
                 human_mouth_w = np.max(hull[:, 0, 0]) - np.min(hull[:, 0, 0])
                 human_mouth_h = np.max(hull[:, 0, 1]) - np.min(hull[:, 0, 1])
-                scale_x = w / human_mouth_w
+                cat_mouth_w = int(0.7 * w)  # 70% of the face width
+                scale_x = cat_mouth_w / human_mouth_w
                 scale_y = mouth_h / human_mouth_h
                 
-                # Resize segmented lips to match cat's mouth size
-                resized_lips = cv2.resize(segmented_lips, (w, mouth_h))
+                # Resize segmented lips to match 70% of cat's mouth width
+                resized_lips = cv2.resize(segmented_lips, (cat_mouth_w, mouth_h))
                 
                 # Calculate the position to place the lips within the cat's face bounding box
-                start_x = x
+                start_x = x + w - cat_mouth_w  # Start from the right side
                 start_y = mouth_y
                 end_x = x + w
                 end_y = mouth_y + mouth_h
@@ -264,7 +265,6 @@ def process_video(human_video_path, cat_video_path, output_path):
                 for c in range(0, 3):
                     cat_frame[start_y:end_y, start_x:end_x, c] = (1 - mask) * cat_frame[start_y:end_y, start_x:end_x, c] + \
                                                                    mask * resized_lips[:, :, c]
-        
         # Write the frame
         out.write(cat_frame)
         
