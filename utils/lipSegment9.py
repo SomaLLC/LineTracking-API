@@ -195,22 +195,8 @@ def process_video(human_video_path, cat_video_path, output_path):
                 x, y, w, h = None, None, None, None
             
             if x is not None:
-                """# Detect cat's nose
-                nose_x, nose_y = detect_cat_nose(cat_frame, (x, y, w, h))
-                
-                # Draw red bounding box below the nose
-                nose_box_w = w // 3
-                nose_box_h = h // 6
-                nose_box_x = nose_x - nose_box_w // 2
-                nose_box_y = nose_y
-                cv2.rectangle(cat_frame, (nose_box_x, nose_box_y), (nose_box_x + nose_box_w, nose_box_y + nose_box_h), (0, 0, 255), 2)
-                
-                # Draw blue bounding box for the mouth
-                mouth_box_w = w // 2
-                mouth_box_h = h // 4
-                mouth_box_x = nose_x - mouth_box_w // 2
-                mouth_box_y = nose_y + nose_box_h
-                cv2.rectangle(cat_frame, (mouth_box_x, mouth_box_y), (mouth_box_x + mouth_box_w, mouth_box_y + mouth_box_h), (255, 0, 0), 2)"""
+                # Draw bounding box around cat's face
+                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
