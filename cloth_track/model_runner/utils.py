@@ -16,6 +16,8 @@ from PIL import Image
 import base64
 import math
 
+import tensorflow as tf
+
 from collections import deque
 import urllib.request
 
