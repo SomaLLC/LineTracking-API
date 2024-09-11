@@ -132,10 +132,11 @@ def detect_cat_face_using_yolo(frame):
     # Process the results
     if len(results) > 0 and len(results[0].boxes) > 0:
         boxes = results[0].boxes.xyxy.cpu().numpy()
-        areas = (boxes[:, 2]) * (boxes[:, 3])
+        areas = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
         biggest_box_index = np.argmax(areas)
         biggest_box = boxes[biggest_box_index]
-        return tuple(map(int, biggest_box))
+        vals =  tuple(map(int, biggest_box))
+        return vals[0], vals[1], vals[2] - vals[0], vals[3] - vals[1]
     else:
         return None, None, None, None
 
@@ -267,6 +268,8 @@ def process_video(human_video_path, cat_video_path, output_path):
                 start_y = mouth_y
                 end_x = x + w
                 end_y = mouth_y + mouth_h
+
+                print("\n\n\n\n\n\nNew detection: ",start_x, start_y, end_x, end_y)
                 
                 # Ensure the dimensions match
                 resized_lips = cv2.resize(resized_lips, (end_x - start_x, end_y - start_y))
