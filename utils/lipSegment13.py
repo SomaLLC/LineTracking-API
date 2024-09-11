@@ -255,7 +255,7 @@ def process_video(human_video_path, cat_video_path, output_path):
             elif last_cat_face is not None:
                 x, y, w, h = last_cat_face
             else:
-                x, y, w, h = None, None, None, None, None
+                x, y, w, h = None, None, None, None
             
             if x is not None:
                 # Draw bounding box around cat's face
