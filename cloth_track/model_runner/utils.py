@@ -682,7 +682,7 @@ def cat_lipsync_runner(cat_video_url):
     human_cap = cv2.VideoCapture(human_video_url)
 
     # Check if the video file was opened successfully
-    if not cap.isOpened():
+    if not cat_cap.isOpened():
         #print("Error: Could not open video.")
         update_process_status(input_url=cat_video_url,model_name="CAT_LIPSYNC",message="Could not process link. Please make sure the link is a direct download link.")
         return
