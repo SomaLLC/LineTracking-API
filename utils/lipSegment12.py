@@ -11,6 +11,9 @@ from firebase_admin import credentials, storage
 import tensorflow as tf
 from tensorflow import keras
 
+from ultralytics import YOLO
+
+
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate("../../credentials.json")
 firebase_admin.initialize_app(cred, {
