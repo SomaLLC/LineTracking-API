@@ -245,7 +245,7 @@ def process_video(human_video_path, cat_video_path, output_path):
 
             for cat_face in cat_faces:
                 x, y, w, h = cat_face
-                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
+                #cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
                 face_history.append((x,y,w,h))
             
             # Use the median of recent face detections to stabilize the bounding box
@@ -259,7 +259,7 @@ def process_video(human_video_path, cat_video_path, output_path):
             
             if x is not None:
                 # Draw bounding box around cat's face
-                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                #cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
                 print("\n\n\n\n\n\nNew detection: ",x,y,w,h)
                 
@@ -327,9 +327,9 @@ def process_video(human_video_path, cat_video_path, output_path):
 
     return output_url
 
-cat_video_url = 'https://drive.google.com/uc?export=download&id=1qBEZixvQgECAN3JjYcLAoCTlRbGnSPXJ'
+#cat_video_url = 'https://drive.google.com/uc?export=download&id=1qBEZixvQgECAN3JjYcLAoCTlRbGnSPXJ'
 #cat_video_url = 'https://drive.google.com/uc?export=download&id=1_l5mowDH5wXWB2pTSBriujpxM2CjrW2s'
-#cat_video_url = 'https://drive.google.com/uc?export=download&id=1-rN9db7xeYKDDEK8PUDZGiucF3EYfq5j'
+cat_video_url = 'https://drive.google.com/uc?export=download&id=1-rN9db7xeYKDDEK8PUDZGiucF3EYfq5j'
 human_video_url = 'https://drive.google.com/uc?export=download&id=1zPNI_dwRa53NfniDhQc3sGa0YYaY-kQj'
 cat_video_path = 'temp_cat_video.mp4'
 human_video_path = 'temp_human_video.mp4'
