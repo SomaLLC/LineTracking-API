@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['catnose']
+
+roboflow:
+  workspace: blanciagabriel
+  project: cat-nose
+  version: 3
+  license: Public Domain
+  url: https://universe.roboflow.com/blanciagabriel/cat-nose/dataset/3
