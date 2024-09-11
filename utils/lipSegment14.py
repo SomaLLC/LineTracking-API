@@ -263,38 +263,40 @@ def process_video(human_video_path, cat_video_path, output_path):
 
                 print("\n\n\n\n\n\nNew detection: ",x,y,w,h)
                 
-                # Estimate cat's mouth region (lower third of the face)
-                mouth_y = y + int(2*h/3)
-                mouth_h = max(1,int(h/3))
+                # Calculate the new dimensions for the lips
+                new_lip_width = 5 * w
+                new_lip_height = int(new_lip_width * (segmented_lips.shape[0] / segmented_lips.shape[1]))
                 
-                # Adjust the size of the lip mask to cover 70% of the cat's mouth region width
-                human_mouth_w = np.max(hull[:, 0, 0]) - np.min(hull[:, 0, 0])
-                human_mouth_h = np.max(hull[:, 0, 1]) - np.min(hull[:, 0, 1])
-                cat_mouth_w = int(5 * w)  # 70% of the face width
-                scale_x = cat_mouth_w / human_mouth_w
-                scale_y = mouth_h / human_mouth_h
-                
-                # Resize segmented lips to match 70% of cat's mouth width
-                resized_lips = cv2.resize(segmented_lips, (cat_mouth_w, mouth_h))
-                
-                # Calculate the position to place the lips within the cat's face bounding box
-                start_x = x + w - cat_mouth_w  # Start from the right side
-                start_y = mouth_y + 4*(mouth_h)
-                end_x = x + w
-                end_y = mouth_y + mouth_h + 4*(mouth_h)
+                # Calculate the position to place the lips below the bounding box
+                start_x = x + (w - new_lip_width) // 2  # Center horizontally
+                start_y = y + h  # Start just below the bounding box
+                end_x = start_x + new_lip_width
+                end_y = start_y + new_lip_height
 
-                print("\n\n\n\n\n\nNew detection: ",start_x, start_y, end_x, end_y)
+                print("\n\n\n\n\n\nNew lip position: ", start_x, start_y, end_x, end_y)
                 
-                # Ensure the dimensions match
-                resized_lips = cv2.resize(resized_lips, (end_x - start_x, end_y - start_y))
+                # Resize segmented lips to the new dimensions
+                resized_lips = cv2.resize(segmented_lips, (new_lip_width, new_lip_height))
+                
+                # Ensure the dimensions are within the frame
+                start_x = max(0, start_x)
+                start_y = max(0, start_y)
+                end_x = min(cat_frame.shape[1], end_x)
+                end_y = min(cat_frame.shape[0], end_y)
+                
+                # Crop resized_lips if necessary
+                resized_lips = resized_lips[:end_y-start_y, :end_x-start_x]
                 
                 # Create a mask for the resized lips
                 mask = resized_lips[:, :, 3] / 255.0
                 
                 # Overlay resized lips on the cat frame
                 for c in range(0, 3):
-                    cat_frame[start_y:end_y, start_x:end_x, c] = (1 - mask) * cat_frame[start_y:end_y, start_x:end_x, c] + \
-                                                                   mask * resized_lips[:, :, c]
+                    cat_frame[start_y:end_y, start_x:end_x, c] = (
+                        (1 - mask) * cat_frame[start_y:end_y, start_x:end_x, c] + 
+                        mask * resized_lips[:, :, c]
+                    )
+                
         # Write the frame
         out.write(cat_frame)
         
