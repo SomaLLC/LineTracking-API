@@ -74,7 +74,7 @@ class RunCreateLipSyncView(View):
         if not url:
             return JsonResponse({'error': 'No URL provided'}, status=400)
         
-        process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="LIPSYNC")
+        process_status, created = ProcessStatus.objects.get_or_create(input_url=url,model_name="CAT_LIPSYNC")
         
         if created:
             thread = Thread(target=self.run_create_lipsync_in_thread, args=(url,))
