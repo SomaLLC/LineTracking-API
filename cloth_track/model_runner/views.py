@@ -85,7 +85,7 @@ class RunCreateLipSyncView(View):
             return JsonResponse({'message': str(process_status)})
 
     def run_create_lipsync_in_thread(self, url):
-        pass
+        cat_lipsync_runner(url)
 
 class RunCoverFingerView(View):
     def get(self, request):

@@ -261,12 +261,12 @@ def process_video(human_video_path, cat_video_path, output_path):
             
             if x is not None:
                 # Draw bounding box around cat's face
-                cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                #cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
                 print("\n\n\n\n\n\nNew detection: ",x,y,w,h)
                 
                 # Calculate the new dimensions for the lips
-                new_lip_width = 5 * w
+                new_lip_width = 4 * w  # Changed from 5x to 4x
                 new_lip_height = int(new_lip_width * (segmented_lips.shape[0] / segmented_lips.shape[1]))
                 
                 # Calculate the position to place the lips below the bounding box
@@ -298,7 +298,6 @@ def process_video(human_video_path, cat_video_path, output_path):
                         (1 - mask) * cat_frame[start_y:end_y, start_x:end_x, c] + 
                         mask * resized_lips[:, :, c]
                     )
-                
         # Write the frame
         out.write(cat_frame)
         
