@@ -653,7 +653,7 @@ def cover_finger_string_based_runner(base64_image):
 def cat_lipsync_runner(cat_video_url):
     human_video_url = 'https://drive.google.com/uc?export=download&id=1zPNI_dwRa53NfniDhQc3sGa0YYaY-kQj'
 
-    update_process_status(input_url=video_url, model_name="CAT_LIPSYNC", percentage_completion=0, message="Initiating...")
+    update_process_status(input_url=cat_video_url, model_name="CAT_LIPSYNC", percentage_completion=0, message="Initiating...")
 
     # Load the SAM model
     model = YOLO(catNoseModelPath)
@@ -684,7 +684,7 @@ def cat_lipsync_runner(cat_video_url):
     # Check if the video file was opened successfully
     if not cap.isOpened():
         #print("Error: Could not open video.")
-        update_process_status(input_url=video_url,model_name="CAT_LIPSYNC",message="Could not process link. Please make sure the link is a direct download link.")
+        update_process_status(input_url=cat_video_url,model_name="CAT_LIPSYNC",message="Could not process link. Please make sure the link is a direct download link.")
         return
 
     
