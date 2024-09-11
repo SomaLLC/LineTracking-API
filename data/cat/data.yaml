@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['british', 'iran', 'scootish', 'van']
+
+roboflow:
+  workspace: mer-said-yilmaz
+  project: cat_detect-se1sb
+  version: 4
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/mer-said-yilmaz/cat_detect-se1sb/dataset/4
