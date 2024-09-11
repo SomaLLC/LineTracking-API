@@ -249,13 +249,13 @@ def process_video(human_video_path, cat_video_path, output_path):
                 face_history.append((x,y,w,h))
             
             # Use the median of recent face detections to stabilize the bounding box
-            if face_history:
+            """if face_history:
                 median_face = np.median(face_history, axis=0).astype(int)
                 x, y, w, h = median_face
             elif last_cat_face is not None:
                 x, y, w, h = last_cat_face
             else:
-                x, y, w, h = None, None, None, None
+                x, y, w, h = None, None, None, None"""
             
             if x is not None:
                 # Draw bounding box around cat's face
