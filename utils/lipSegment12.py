@@ -20,7 +20,7 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': 'test-421b9.appspot.com'
 })
 
-model = YOLO("../runs/detect/cat-yolo/weights/best.pt") 
+model = YOLO("../runs/detect/cat-yolo2/weights/best.pt") 
 
 def segment_lips_and_teeth(frame):
     """
