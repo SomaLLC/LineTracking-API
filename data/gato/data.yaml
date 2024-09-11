@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['cat-face']
+
+roboflow:
+  workspace: findmyneko
+  project: cat-faces-nhyrk
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/findmyneko/cat-faces-nhyrk/dataset/2
