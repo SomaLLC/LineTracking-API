@@ -696,7 +696,7 @@ def cat_lipsync_runner(cat_video_url):
     
     # Create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+    out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
     
     last_cat_face = None  # Store the last detected cat face
     face_history = deque(maxlen=30)  # Store last 3 face detections
