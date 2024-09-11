@@ -16,6 +16,11 @@ from PIL import Image
 import base64
 import math
 
+from collections import deque
+import urllib.request
+
+from tensorflow import keras
+
 from .models import ProcessStatus
 from cloth_track.settings import BASE_DIR
 
