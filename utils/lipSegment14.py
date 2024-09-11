@@ -243,6 +243,8 @@ def process_video(human_video_path, cat_video_path, output_path):
             print(cat_face)
             print("\n\n\n\n\n\n")"""
 
+            x,y,w,h = None, None, None, None
+
             for cat_face in cat_faces:
                 x, y, w, h = cat_face
                 cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
