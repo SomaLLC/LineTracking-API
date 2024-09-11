@@ -271,7 +271,7 @@ def process_video(human_video_path, cat_video_path, output_path):
         # Update frame count and print progress
         frame_count += 1
         progress = (frame_count / total_frames) * 100
-        print(f"\rProgress: {progress:.2f}%", end="")
+        print(f"\n\n\n\n\n\nProgress: {progress:.2f}%", end="")
     
     print("\nProcessing complete!")
     
