@@ -769,7 +769,7 @@ def cat_lipsync_runner(cat_video_url):
         # Update frame count and print progress
         frame_count += 1
         progress = (frame_count / total_frames) * 100
-        update_process_status(input_url=cat_video_url, model_name="CAT_LIPSYNC", percentage_completion=progress, message="Progress: {progress:.2f}%")
+        update_process_status(input_url=cat_video_url, model_name="CAT_LIPSYNC", percentage_completion=progress, message="In Progress")
         #print(f"\n\n\n\n\n\nProgress: {progress:.2f}%", end="")
     
     print("\nProcessing complete!")
