@@ -245,6 +245,8 @@ def process_video(human_video_path, cat_video_path, output_path):
             if x is not None:
                 # Draw bounding box around cat's face
                 cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+                print("\n\n\n\n\n\nNew detection: ",x,y,w,h)
                 
                 # Estimate cat's mouth region (lower third of the face)
                 mouth_y = y + int(2*h/3)
