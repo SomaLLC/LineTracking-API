@@ -138,7 +138,7 @@ def detect_cat_face_using_yolo(frame):
         vals =  tuple(map(int, biggest_box))
         return vals[0], vals[1], vals[2] - vals[0], vals[3] - vals[1]
     else:
-        return None, None, None, None
+        return None
 
 
 def detect_cat_nose(frame, face_rect):
