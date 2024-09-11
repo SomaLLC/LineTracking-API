@@ -9,7 +9,7 @@ model = YOLO("../models/yolov9m.pt")
 
 # Train the model
 results = model.train(
-    data="../data/pinky/cat.yaml",
+    data="../data/cat/data.yaml",
     epochs=100,
     imgsz=640,
     batch=4,
