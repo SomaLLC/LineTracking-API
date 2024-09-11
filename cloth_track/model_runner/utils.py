@@ -672,7 +672,7 @@ def cat_lipsync_runner(cat_video_url):
         else:
             return []
 
-    url_hash = hashlib.sha256(video_url.encode()).hexdigest()
+    url_hash = hashlib.sha256(cat_video_url.encode()).hexdigest()
 
     # Define the codec and create a VideoWriter object to save the video
     output_video_path = f"output_video_cat_lipsync_{url_hash}.avi"
