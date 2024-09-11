@@ -140,6 +140,20 @@ def detect_cat_face_using_yolo(frame):
     else:
         return None
 
+def detect_cat_faces_using_yolo(frame):
+    # Run YOLO model on the image
+    results = model(frame)
+    # Process the results
+    if len(results) > 0 and len(results[0].boxes) > 0:
+        boxes = results[0].boxes.xyxy.cpu().numpy()
+        all_boxes = []
+        for box in boxes:
+            x1, y1, x2, y2 = map(int, box)
+            all_boxes.append((x1, y1, x2 - x1, y2 - y1))  # (x, y, w, h) format
+        return all_boxes
+    else:
+        return []
+
 
 def detect_cat_nose(frame, face_rect):
     """
@@ -223,13 +237,13 @@ def process_video(human_video_path, cat_video_path, output_path):
         
         if hull is not None:
             # Detect cat's face
-            cat_face = detect_cat_face_using_yolo(cat_frame)
+            cat_faces = detect_cat_faces_using_yolo(cat_frame)
 
             """print("\n\n\n\n\n\n")
             print(cat_face)
             print("\n\n\n\n\n\n")"""
 
-            if cat_face is not None:
+            for cat_face in cat_faces:
                 x, y, w, h = cat_face
                 cv2.rectangle(cat_frame, (x, y), (x+w, y+h), (0, 0, 255), 2)  # Red bounding box
                 face_history.append((x,y,w,h))
