@@ -5,6 +5,9 @@ from threading import Thread
 import asyncio
 import hashlib
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 from .utils import *
 
 class RunSam2View(View):
@@ -68,6 +71,7 @@ class RunCombinedView(View):
     def run_combined_in_thread(self, url):
         combined_runner(url)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class RunCreateLipSyncView(View):
     def get(self, request):
         url = request.GET.get('url')
@@ -106,8 +110,7 @@ class RunCoverFingerView(View):
     def run_cover_finger_in_thread(self, url):
         cover_finger_runner(url)
 
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RunCoverFingerStringBasedView(View):
